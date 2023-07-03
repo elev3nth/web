@@ -8,6 +8,7 @@ storage/logs/*
 storage/temp/*
 
 # exception to the rule
+!storage/.gitkeep
 !storage/apps/.gitkeep
 !storage/cache/.gitkeep
 !storage/logs/.gitkeep
