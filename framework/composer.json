@@ -1,0 +1,25 @@
+{
+    "name": "celedonio/web",
+    "description": "A simple web application that can be accessed by multiple web clients from one REST host application",
+    "type": "project",
+    "require": {
+        "slim/slim": "4.x-dev",
+        "slim/psr7": "dev-master",
+        "slim/http": "dev-master",
+        "phpmailer/phpmailer": "dev-master"
+    },
+    "license": "Unlicensed",
+    "autoload": {
+        "psr-4": {
+            "Web\\Controllers\\": "controllers/",
+            "Web\\Models\\": "models/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Allan Celedonio",
+            "email": "allan@celedonio.digital"
+        }
+    ],
+    "minimum-stability": "dev"
+}

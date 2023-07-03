@@ -1,0 +1,14 @@
+
+**/.env
+
+vendor/
+storage/apps/*
+storage/cache/*
+storage/logs/*
+storage/temp/*
+
+# exception to the rule
+!storage/apps/.gitkeep
+!storage/cache/.gitkeep
+!storage/logs/.gitkeep
+!storage/temp/.gitkeep
