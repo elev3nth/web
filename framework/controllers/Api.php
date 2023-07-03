@@ -72,7 +72,7 @@ abstract class Methods {
               $payload = $request->getParsedBody()['payload'];
             }
 
-            if (!empty($client['addr']) && !empty($client['host'])) {
+            if ($client['addr'] && $client['host']) {
 
               $logged_ep = new Pdo($_api);
               $logged_ep->Execute('
