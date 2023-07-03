@@ -4,6 +4,6 @@
 //
 require_once __DIR__ . '/../framework/vendor/autoload.php';
 
-// Initialize App Interface
+// Initialize REST Interface
 //
 Web\Controllers\Api::Init();
