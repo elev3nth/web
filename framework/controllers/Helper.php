@@ -15,6 +15,127 @@ class Helper {
      return $str;
   }
 
+  public static function TwigRender($_app) {
+
+    self::ScssMinifier($_app);
+
+    $twig_view = $_app['env']['root'].'/pages';
+    $twig_path = new \Twig\Loader\FilesystemLoader([ $twig_view ]);
+    $twig_load = new \Twig\Environment($twig_path, [
+        'cache'       => false,
+        'debug'       => $_app['env']['dev'] ? true : false,
+        'auto_reload' => true
+    ]);
+    $twig_load->addFilter(
+      new \Twig\TwigFilter('json_decode', 'json_decode')
+    );
+    /*
+    $twig_template_load->addFilter(new \Twig\TwigFilter('uuid_generate', function() { return Utility::UuidGenerate(); }));
+    $twig_template_load->addFilter(new \Twig\TwigFilter('is_json', function($string) { return Utility::IsJson($string); }));
+    $twig_template_load->addFilter(new \Twig\TwigFilter('encrypt', function($string) { return Utility::Encrypt($_SESSION['csrf'], $_SESSION['csrf'], $string); }));
+    */
+    if ($_app['env']['dev']) {
+        $twig_load->addExtension(new \Twig\Extension\DebugExtension());
+    }
+
+    $twig_display = $twig_load->render(
+      'index.tpl',
+      self::Variables($_app)
+    );
+    $twig_display = preg_replace_callback(
+      '#<(?P<tag>textarea|pre|code)[^>]*?>.*</(?P=tag)>#sim',
+      function ($matches) {
+         return str_replace("\n", "%TEMPNEWLINE%", $matches[0]);
+    }, $twig_display);
+
+    return trim(str_replace(
+      array("\n", "%TEMPNEWLINE%"), array('', "\n"),
+      str_replace('> <', '><',
+      trim(preg_replace('/\s\s+|\r|\n|\t/', '',
+      preg_replace('/\s+/', ' ',
+      $twig_display))))
+    ));
+
+  }
+
+  public static function Variables($_app) {
+    $vars = [];
+    if (!isset($_SESSION['csrf'])) {
+      $_SESSION['csrf'] = bin2hex(random_bytes(15));
+    }
+    if (isset($_SESSION['logged'])) {
+        $vars['logged'] = true;
+    }
+    $vars['csrf'] = $_SESSION['csrf'];
+    if (!$_app['env']['dev'] && $_app['env']['ssl']) {
+      $vars['host'] = 'https://'.$_SERVER['HTTP_HOST'];
+    }
+    else{
+      $vars['host'] = 'http://'.$_SERVER['HTTP_HOST'];
+    }
+    $vars['admin'] = dirname($_SERVER['REQUEST_URI']);
+    if ($vars['admin'] == '\\') {
+      $vars['admin'] = rtrim($_SERVER['REQUEST_URI'], '/');
+    }
+    return $vars;
+  }
+
+  public static function ScssMinifier($_app) {
+
+    $scss_files = [
+      'colors', 'mixins', 'fonts', 'keyframes', 'animations',
+      'styling', 'header', 'navbar', 'sidebar', 'dashboard',
+      'page', 'content', 'buttons', 'modal', 'forms',
+      'editor', 'footer', 'subfooter', 'custom'
+    ];
+
+    $css_file = $_app['env']['root'].'/static/style.min.css';
+    $scss_dir = $_app['env']['root'].'/assets/scss';
+    $tailwind = $_app['env']['root'].'/static/tailwind.sh';
+
+    $scss_tmestmp = [];
+    $scss_assets  = '';
+    if (file_exists($scss_dir)) {
+      foreach($scss_files as $file) {
+        $scss_file = $scss_dir.'/'.$file.'.scss';
+        if (file_exists($scss_file)) {
+          $scss_tmestmp[] = filemtime($scss_file);
+          $scss_handle    = fopen($scss_file, 'r');
+          $scss_assets   .= fread($scss_handle, filesize($scss_file));
+          fclose($scss_handle);
+        }
+      }
+      if (!empty($scss_assets)) {
+        try {
+            $scss_compiler = new \ScssPhp\ScssPhp\Compiler;
+            $scss_compiler->setOutputStyle(
+              \ScssPhp\ScssPhp\OutputStyle::COMPRESSED
+            );
+            $scss_compiled = $scss_compiler
+            ->compileString(trim($scss_assets))->getCss();
+            if (file_exists($css_file)) {
+                if (filemtime($css_file) < max($scss_tmestmp)) {
+                    $scss_handle = fopen($css_file, 'w+');
+                    fwrite($scss_handle, trim($scss_compiled));
+                    fclose($scss_handle);
+                }
+            }else{
+                $scss_handle = fopen($css_file, 'w+');
+                fwrite($scss_handle, trim($scss_compiled));
+                fclose($scss_handle);
+            }
+        } catch (\Exception $e) {
+            if ($_app['env']['dev']) {
+                echo 'Caught exception: ' . $e->getMessage();
+                exit();
+            }else{
+                return false;
+            }
+        }
+      }
+    }
+  }
+
   public static function Decrypt($data, $key) {
       $data = base64_decode($data);
       if (substr($data, 0, 8) != "Salted__") {

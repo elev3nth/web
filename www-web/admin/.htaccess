@@ -8,14 +8,14 @@ RewriteEngine On
 # In such cases, it should be the path (relative to the document root)
 # containing this .htacess file
 #
-# RewriteBase /
+RewriteBase /admin/
 
-RewriteRule ^(tmp)\/|\.ini$ - [R=404]
+RewriteRule ^(tmp)\/|\.env$ - [R=404]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
-RewriteRule .* index.html [L,QSA]
+RewriteRule .* index.php [L,QSA]
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
 
 <IfModule mod_headers.so>

@@ -1,11 +1,12 @@
 
 **/.env
 
-vendor/
+framework/vendor/
 storage/apps/*
 storage/cache/*
 storage/logs/*
 storage/temp/*
+www-web/admin/static/packages/*
 
 # exception to the rule
 !storage/.gitkeep
@@ -13,3 +14,4 @@ storage/temp/*
 !storage/cache/.gitkeep
 !storage/logs/.gitkeep
 !storage/temp/.gitkeep
+!www-web/admin/static/packages/.gitkeep

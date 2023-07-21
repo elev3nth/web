@@ -1,0 +1,18 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap');
+
+html, body {
+  margin           : 0 auto;
+  padding          : 0;
+  background-color : $background-color;
+  color            : $font-color;
+  font-family      : 'Roboto', sans-serif;
+  div,
+  section,
+  table {
+    margin           : 0 auto;
+    padding          : 0;
+    color            : $font-color;
+    font-family      : 'Roboto', sans-serif;
+  }
+}

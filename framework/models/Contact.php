@@ -35,9 +35,16 @@ class Contact {
 
         $mail = new PHPMailer(true);
         try {
-            $mail->setFrom('enquiry@celedonio.digital', 'Enquiry');
-            $mail->addAddress('allan@celedonio.digital', 'Allan Celedonio');
-            $mail->addReplyTo('allan@celedonio.digital', 'Allan Celedonio');
+            if (trim(strtolower($this->api['client']['client_domain'])) == 'fbac.basketball') {
+              $mail->setFrom('enquiry@fbac.basketball', 'Enquiry');
+              $mail->addAddress('president@fbac.basketball', 'President FBA Christchurch');
+              $mail->addCC('vp@fbac.basketball', 'Vice-President FBA Christchurch');
+              $mail->addReplyTo(trim($this->api['payload']['body']['eml']), trim($this->api['payload']['body']['nme']));
+            }else{
+              $mail->setFrom('enquiry@celedonio.digital', 'Enquiry');
+              $mail->addAddress('allan@celedonio.digital', 'Allan Celedonio');
+              $mail->addReplyTo(trim($this->api['payload']['body']['eml']), trim($this->api['payload']['body']['nme']));
+            }
             $mail->isHTML(true);
             $mail->Subject = $this->api['payload']['body']['sbj'];
             $mail->Body    = '<pre>'.$this->api['payload']['body']['msg'].'</pre>';
