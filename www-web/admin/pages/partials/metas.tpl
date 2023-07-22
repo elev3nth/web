@@ -1,5 +1,5 @@
 <head>
-    <title>Backend</title>
+    <title>Celedonio Digital Admin</title>
     <meta charset="UTF-8">
     <meta name="author" content="Allan Celedonio" />
     <meta name="csrf" content="{{ csrf }}" />
@@ -15,11 +15,11 @@
     <meta name="keywords" content="" />
     <meta name="robots" content="index, follow">
     <meta name="shortlink" content="{{ host }}" />
-    <link href="{{ host }}" rel="canonical" />
-    <link href="{{ host~admin~'/static/images/favicon.ico' }}"
+    <link href="{{ host~'/'~admin }}" rel="canonical" />
+    <link href="{{ host~'/'~admin~'/static/images/favicon.ico' }}"
     rel="shortcut icon" />
-    <link href="{{ host~admin~'/static/tailwind.min.css' }}"
+    <link href="{{ host~'/'~admin~'/static/tailwind.min.css' }}"
     rel="stylesheet" media="screen" />
-    <link href="{{ host~admin~'/static/style.min.css' }}"
+    <link href="{{ host~'/'~admin~'/static/style.min.css' }}"
     rel="stylesheet" media="screen" />
 </head>

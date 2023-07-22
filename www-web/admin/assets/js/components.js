@@ -1,0 +1,4 @@
+
+var Ajax = ((params) => {
+
+});

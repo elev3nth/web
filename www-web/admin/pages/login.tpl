@@ -1,52 +1,69 @@
 <section id="login" class="w-full">
-  <form method="post" action="">
-    <div class="w-full mt-[2em] lg:w-[70%]">
+  <form method="post" action="{{ host~'/'~admin~'/'~login }}">
+    <div class="w-full mt-[1em] lg:mt-[2em] lg:w-[70%]">
       <div class="
       m-auto bg-main-logo bg-center bg-no-repeat bg-cover
-      w-[8em] h-[8em]
+      w-[6em] h-[6em] lg:w-[8em] lg:h-[8em]
       "></div>
     </div>
     <div class="
-      bg-gray-100 m-auto min-h-[10em] border border-solid
-      border-slate-200 rounded-md lg:my-[2em] lg:flex lg:items-center
-      lg:justify-center lg:h-[35em] lg:w-[70%]
+      bg-gray-100 m-auto min-h-[20em] border-slate-200
+      h-auto w-[95%] items-center justify-center my-[1em]
+      lg:border lg:border-solid
+      lg:rounded-md lg:my-[2em] lg:flex lg:h-[35em] lg:w-[70%]
     ">
       <div class="
         bg-login-splash bg-center bg-no-repeat bg-cover
-        w-full h-full rounded-tl-md rounded-bl-md
+        w-full h-[20em] lg:h-full lg:rounded-tl-md lg:rounded-bl-md
       "></div>
       <div class="
-        w-full h-full rounded-tr-md rounded-br-md
-        bg-gradient-to-r from-blue-300 to-pink-300
+        w-full h-full bg-gradient-to-r from-blue-300 to-pink-300
+        lg:rounded-tr-md lg:rounded-br-md
       ">
-        <div class="pt-[8em] px-[3em] w-full">
+        <div class="
+          w-full pt-[2em] px-[1em] lg:pt-[8em] lg:px-[3em]
+        ">
           <input type="email" id="userName" name="userName" class="
           border border-solid border-slate-200 rounded-md
           w-full p-2
           " required />
         </div>
-        <div class="pt-[2em] px-[3em] w-full">
+        <div class="
+          w-full pt-[2em] px-[1em] lg:pt-[2em] lg:px-[3em]
+        ">
           <input type="password" id="userPass" name="userPass" class="
           border border-solid border-slate-200 rounded-md
           w-full p-2
           " required />
         </div>
-        <div class="pt-[2em] px-[3em] w-full flex">
-          <div class="text-left w-full px-[2em] text-lg">
+        <div class="
+          w-full flex pt-[1.5em] px-[0.5em] lg:pt-[2em] lg:px-[3em]
+        ">
+          <div class="
+            text-left w-full text-base px-2 lg:text-lg lg:px-[2em]
+          ">
             <label>
               <input type="checkbox" id="rememberMe" name="rememberMe"
               value="1" class="w-4 h-4 rounded" />&nbsp;&nbsp;Remember Me
             </label>
           </div>
-          <div class="text-right w-full px-[2em] text-lg">
-            <a href="{{ host~admin~'/forgot-password' }}">Forgot Password?</a>
+          <div class="
+            text-right w-full text-base px-2 lg:text-lg lg:px-[2em]
+          ">
+            <a href="{{ host~'/'~admin~'/'~forgotpassword }}" class="
+              underline
+            ">
+              Forgot Password?
+            </a>
           </div>
         </div>
-        <div class="pt-[2em] px-[3em] w-full">
+        <div class="px-[3em] w-full p-[2em] lg:pt-[2em]">
+          <input type="hidden" id="userCsrf" name="userCsrf"
+          value="{{ csrf }}" />
           <button type="submit" id="userLogin" name="userLogin" class="
           border border-solid border-black rounded-md text-white
-          text-lg font-bold
-          w-full p-2 h-14 bg-gradient-to-r from-slate-600 to-black
+          font-bold w-full p-2 h-14 bg-gradient-to-r from-slate-600 to-black
+          text-lg
           ">Submit</button>
         </div>
       </div>

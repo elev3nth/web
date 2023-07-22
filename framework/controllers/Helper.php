@@ -6,6 +6,29 @@ namespace Web\Controllers;
 
 class Helper {
 
+  public static function Variables($_app) {
+    $vars = [];
+    if (!isset($_SESSION['csrf'])) {
+      $_SESSION['csrf'] = bin2hex(random_bytes(15));
+    }
+    if (isset($_SESSION['logged'])) {
+        $vars['logged'] = true;
+    }
+    $vars['csrf'] = $_SESSION['csrf'];
+    if (!$_app['env']['dev'] && $_app['env']['ssl']) {
+      $vars['host'] = 'https://'.$_SERVER['HTTP_HOST'];
+    }
+    else{
+      $vars['host'] = 'http://'.$_SERVER['HTTP_HOST'];
+    }
+    if (!empty($_app['env']['pages'])) {
+      foreach($_app['env']['pages'] as $pagekey => $pageitem) {
+        $vars[$pagekey] = $pageitem;
+      }
+    }
+    return $vars;
+  }
+
   public static function Nix($str) {
       if (!empty($str)) {
          $str = str_replace('\\', '/', $str);
@@ -18,6 +41,7 @@ class Helper {
   public static function TwigRender($_app) {
 
     self::ScssMinifier($_app);
+    self::JsMinifier($_app);
 
     $twig_view = $_app['env']['root'].'/pages';
     $twig_path = new \Twig\Loader\FilesystemLoader([ $twig_view ]);
@@ -58,35 +82,13 @@ class Helper {
 
   }
 
-  public static function Variables($_app) {
-    $vars = [];
-    if (!isset($_SESSION['csrf'])) {
-      $_SESSION['csrf'] = bin2hex(random_bytes(15));
-    }
-    if (isset($_SESSION['logged'])) {
-        $vars['logged'] = true;
-    }
-    $vars['csrf'] = $_SESSION['csrf'];
-    if (!$_app['env']['dev'] && $_app['env']['ssl']) {
-      $vars['host'] = 'https://'.$_SERVER['HTTP_HOST'];
-    }
-    else{
-      $vars['host'] = 'http://'.$_SERVER['HTTP_HOST'];
-    }
-    $vars['admin'] = dirname($_SERVER['REQUEST_URI']);
-    if ($vars['admin'] == '\\') {
-      $vars['admin'] = rtrim($_SERVER['REQUEST_URI'], '/');
-    }
-    return $vars;
-  }
-
   public static function ScssMinifier($_app) {
 
     $scss_files = [
       'colors', 'mixins', 'fonts', 'keyframes', 'animations',
       'styling', 'header', 'navbar', 'sidebar', 'dashboard',
       'page', 'content', 'buttons', 'modal', 'forms',
-      'editor', 'footer', 'subfooter', 'custom'
+      'footer', 'subfooter', 'custom'
     ];
 
     $css_file = $_app['env']['root'].'/static/style.min.css';
@@ -134,6 +136,55 @@ class Helper {
         }
       }
     }
+
+    return false;
+
+  }
+
+  public static function JsMinifier($_app) {
+
+    $js_files = [
+      'animations', 'components', 'header', 'navbar', 'sidebar',
+      'dashboard', 'page', 'content', 'modal', 'forms', 'editor',
+      'footer', 'subfooter', 'custom', 'onload'
+    ];
+
+    $js_file = $_app['env']['root'].'/static/scripts.min.js';
+    $js_dir = $_app['env']['root'].'/assets/js';
+
+    $js_tmestmp = [];
+    $js_assets  = '';
+    if (file_exists($js_dir)) {
+      foreach($js_files as $file) {
+        $js_cfile = $js_dir.'/'.$file.'.js';
+        if (file_exists($js_cfile)) {
+          $js_tmestmp[] = filemtime($js_cfile);
+          $js_handle    = fopen($js_cfile, 'r');
+          $js_assets   .= fread($js_handle, filesize($js_cfile));
+          fclose($js_handle);
+        }
+      }
+      if (!empty($js_assets)) {
+        $js_compiler = new \MatthiasMullie\Minify\JS();
+        $js_compiler->add($js_assets);
+        $js_compiled = $js_compiler->minify();
+        if (file_exists($js_file)) {
+          if (filemtime($js_file) < max($js_tmestmp)) {
+              $js_handler = fopen($js_file, 'w+');
+              fwrite($js_handler,
+                trim(str_replace("\n\r", '', $js_compiled)));
+              fclose($js_handler);
+          }
+        }else{
+          $js_handler = fopen($js_file, 'w+');
+          fwrite($js_handler, trim($js_compiled));
+          fclose($js_handler);
+        }
+      }
+    }
+
+    return false;
+
   }
 
   public static function Decrypt($data, $key) {
@@ -196,5 +247,34 @@ class Helper {
         "iv"  => substr($derivedBytes, $keySize * 4, $ivSize * 4)
     );
   }
+
+  public static function Connect($_app, $ep = '',$params = []) {
+      if ($_app && $ep && !empty($params)) {
+        if (function_exists('curl_exec')) {
+          $ch = curl_init($_app['env']['api_url'].'/'.$ep);
+          curl_setopt($ch, CURLOPT_HEADER, false);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, [
+              'Client-Addr: '.$_SERVER['SERVER_ADDR'],
+              'Client-Host: '.$_SERVER['SERVER_NAME']
+          ]);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            self::Encrypt(
+              base64_encode(json_encode($params)),
+              $_app['env']['api_key']
+            )
+          ]));
+          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          $response = curl_exec($ch);
+          curl_close($ch);
+          if (!empty($response)) {
+            return json_decode($response, true);
+          }
+        }
+      }
+      return false;
+    }
 
 }
