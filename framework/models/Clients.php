@@ -17,4 +17,7 @@ class Clients {
      return $this;
   }
 
+  public function Login() {
+  }  
+
 }

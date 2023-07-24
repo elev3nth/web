@@ -11,8 +11,14 @@ class Helper {
     if (!isset($_SESSION['csrf'])) {
       $_SESSION['csrf'] = bin2hex(random_bytes(15));
     }
-    if (isset($_SESSION['logged'])) {
+    if (isset($_SESSION['logged']) && !empty($_SESSION['logged'])) {
         $vars['logged'] = true;
+    }
+    if (isset($_app['args']) && !empty($_app['args'])) {
+      $vars['args'] = $_app['args'];
+    }
+    if (isset($_app['get']) && !empty($_app['get'])) {
+      $vars['get'] = $_app['get'];
     }
     $vars['csrf'] = $_SESSION['csrf'];
     if (!$_app['env']['dev'] && $_app['env']['ssl']) {
@@ -249,32 +255,73 @@ class Helper {
   }
 
   public static function Connect($_app, $ep = '',$params = []) {
-      if ($_app && $ep && !empty($params)) {
-        if (function_exists('curl_exec')) {
-          $ch = curl_init($_app['env']['api_url'].'/'.$ep);
-          curl_setopt($ch, CURLOPT_HEADER, false);
-          curl_setopt($ch, CURLOPT_HTTPHEADER, [
-              'Client-Addr: '.$_SERVER['SERVER_ADDR'],
-              'Client-Host: '.$_SERVER['SERVER_NAME']
-          ]);
-          curl_setopt($ch, CURLOPT_POST, true);
-          curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-            self::Encrypt(
-              base64_encode(json_encode($params)),
-              $_app['env']['api_key']
-            )
-          ]));
-          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          $response = curl_exec($ch);
-          curl_close($ch);
-          if (!empty($response)) {
-            return json_decode($response, true);
-          }
+    if ($_app && $ep && !empty($params)) {
+      if (function_exists('curl_exec')) {
+        $ch = curl_init($_app['env']['api_url'].'/'.$ep);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Client-Addr: '.$_SERVER['SERVER_ADDR'],
+            'Client-Host: '.$_SERVER['SERVER_NAME'],
+            'Client-Tmzn: '.$_app['env']['tz']
+        ]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+          self::Encrypt(
+            base64_encode(json_encode($params)),
+            $_app['env']['api_key']
+          )
+        ]));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        if (!empty($response)) {
+          return json_decode($response, true);
         }
       }
-      return false;
     }
+    return false;
+  }
+
+  public static function UuidGenerate() {
+    return self::UuidVersion5(self::UuidVersion4(), microtime());
+  }
+
+  public static function UuidVersion4() {
+    return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+      mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+      mt_rand(0, 0xffff),
+      mt_rand(0, 0x0fff) | 0x4000,
+      mt_rand(0, 0x3fff) | 0x8000,
+      mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+  }
+
+  public static function UuidVersion5($namespace, $name) {
+    if (!self::UuidValidate($namespace)) return false;
+      $nhex = str_replace(array('-','{','}'), '', $namespace);
+      $nstr = '';
+      for($i = 0; $i < strlen($nhex); $i+=2) {
+          $nstr .= chr(hexdec($nhex[$i].$nhex[$i+1]));
+      }
+      $hash = sha1($nstr . $name);
+      return sprintf('%08s-%04s-%04x-%04x-%12s',
+      substr($hash, 0, 8),
+      substr($hash, 8, 4),
+      (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000,
+      (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000,
+      substr($hash, 20, 12)
+    );
+  }
+
+  public static function UuidValidate($uuid) {
+    return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?'.
+           '[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid) === 1;
+  }
+
+  public static function IsJson($string) {
+    return (json_decode($string) == null) ? false : true;
+  }
 
 }

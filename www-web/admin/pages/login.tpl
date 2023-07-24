@@ -17,11 +17,18 @@
         w-full h-[20em] lg:h-full lg:rounded-tl-md lg:rounded-bl-md
       "></div>
       <div class="
-        w-full h-full bg-gradient-to-r from-blue-300 to-pink-300
+        w-full h-full login-form
         lg:rounded-tr-md lg:rounded-br-md
       ">
+        <h3 class="
+          w-full p-0 pt-[1em] px-[1em]
+          text-center text-red-400
+          lg:text-[2em] lg:pt-[2em] lg:px-[3em]
+        ">
+          {{ get.msg ? get.msg : '&nbsp;' }}
+        </h3>
         <div class="
-          w-full pt-[2em] px-[1em] lg:pt-[8em] lg:px-[3em]
+          w-full pt-[2em] px-[1em] lg:pt-[4em] lg:px-[3em]
         ">
           <input type="email" id="userName" name="userName" class="
           border border-solid border-slate-200 rounded-md

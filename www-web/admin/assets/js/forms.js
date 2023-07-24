@@ -5,11 +5,7 @@ var UserLogin = (() => {
   let remem = document.querySelector('#rememberMe');
   let ulogn = document.querySelector('#userLogin');
   let ucsrf = document.querySelector('#userCsrf');
-  if (uname !== undefined &&
-      upass !== undefined &&
-      ulogn !== undefined &&
-      ucsrf !== undefined
-  ) {
+  if (uname && upass && ulogn && ucsrf) {
 
     uname.focus();
     let regxemail =

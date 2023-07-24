@@ -24,7 +24,6 @@ abstract class Methods {
 
     set_time_limit(0);
     error_reporting(0);
-    date_default_timezone_set('Pacific/Auckland');
 
     header('Access-Control-Allow-Origin: *');
     header("Access-Control-Allow-Credentials: true");
@@ -61,7 +60,10 @@ abstract class Methods {
           $client = [
               'addr' => $_api['headers']['addr'] ?: false,
               'host' => $_api['headers']['host'] ?: false,
+              'tmzn' => $_api['headers']['tmzn'] ?: 'Pacific/Auckland'
           ];
+
+          date_default_timezone_set($client['tmzn']);
 
           if ($request->getParsedBody() !== null) {
 
@@ -89,7 +91,9 @@ abstract class Methods {
               $verify_client = new Pdo($_api);
               $verified_client = $verify_client->Execute('
                SELECT `client_key`,
-               `client_domain` FROM `'.$_api['env']['db_prfx'].'clients`
+               `client_domain`,
+               `client_credentials` FROM
+               `'.$_api['env']['db_prfx'].'clients`
                WHERE client_ip_address = ? AND client_domain = ? AND
                client_enabled = ? LIMIT 1
               ', [
@@ -101,17 +105,34 @@ abstract class Methods {
 
               if ($verified_client && $payload) {
 
-                $decrypted_payload = Helper::Decrypt(trim($payload), trim($verified_client['client_key']));
+                $decrypted_payload = Helper::Decrypt(
+                  trim($payload),
+                  trim($verified_client['client_key'])
+                );
 
                 if ($decrypted_payload) {
 
-                  $decrypted_payload = json_decode(base64_decode($decrypted_payload), true);
+                  $decrypted_payload = json_decode(
+                    base64_decode($decrypted_payload), true);
+                  if (!empty($verified_client['client_credentials'])) {
+                    $decrypted_crdntls = json_decode(
+                      base64_decode(Helper::Decrypt(
+                        trim($verified_client['client_credentials']),
+                        trim($verified_client['client_key'])
+                      )),
+                    true);
+                    if (!empty($decrypted_crdntls)) {
+                      $verified_client['env'] = $decrypted_crdntls;
+                    }
+                  }
 
                   if (!empty($decrypted_payload) &&
                     isset($decrypted_payload['pkey']) &&
                     isset($decrypted_payload['host']) &&
-                    $decrypted_payload['pkey'] == $verified_client['client_key'] &&
-                    $decrypted_payload['host'] == $verified_client['client_domain']) {
+                    $decrypted_payload['pkey'] ==
+                    $verified_client['client_key'] &&
+                    $decrypted_payload['host'] ==
+                    $verified_client['client_domain']) {
 
                     $_api['client']  = $verified_client;
                     $_api['payload'] = $decrypted_payload;
@@ -120,14 +141,18 @@ abstract class Methods {
                     $_api['endpoint'] = trim(str_replace(' ', '', ucwords(
                       str_replace('-', ' ', $arguments['endpoint']))));
                     if (isset($arguments['routines'])) {
-                      $_api['routines'] = array_filter(explode('/', trim(str_replace(' ', '',
-                      ucwords(str_replace('-', ' ', $arguments['routines']))))));
+                      $_api['routines'] = array_filter(
+                        explode('/', trim(str_replace(' ', '',
+                        ucwords(str_replace('-', ' ', $arguments['routines'])))
+                      )));
                     }
-                    $modelfile = Helper::Nix(__DIR__) . '/../models/' . $_api['model'] . '.php';
+                    $modelfile = Helper::Nix(__DIR__).
+                    '/../models/'.$_api['model'].'.php';
 
                     if (file_exists($modelfile)) {
 
-                      include(__DIR__ . '/../models/' . $_api['model'] . '.php');
+                      include(__DIR__.'/../models/'.
+                      $_api['model'].'.php');
                       $initmodel = '\\Web\\Models\\'.$_api['model'];
                       $initclass = new $initmodel($_api);
                       if (class_exists($initmodel) &&

@@ -60,12 +60,31 @@ abstract class Base {
         ]);
         $set_vars = Helper::Variables($_app);
         if ($verify_login['success']) {
+          if (isset($verify_login['payload']['error'])) {
+            return $response
+            ->withRedirect(
+              $set_vars['host'].'/'.$set_vars['admin'].'/?msg='.
+              urlencode($verify_login['payload']['message'])
+            );
+          }else{
+            $_SESSION['logged'] = $verify_login['payload'];
             return $response
             ->withRedirect($set_vars['host'].'/'.$set_vars['admin']);
+          }
         }
       }
       return $response
       ->withRedirect($set_vars['host']);
+    });
+
+    $_app['slim']->get('/'.$_app['env']['pages']['admin'].'/'.
+    $_app['env']['pages']['logout'],
+    function (Request $request, Response $response) use ($_app) {
+      unset($_SESSION['logged']);
+      $_SESSION['logged'] = $verify_login['payload'];
+      $set_vars = Helper::Variables($_app);
+      return $response
+      ->withRedirect($set_vars['host'].'/'.$set_vars['admin']);
     });
 
     $_app['slim']->get('/'.$_app['env']['pages']['admin'].
@@ -75,15 +94,15 @@ abstract class Base {
       Response $response,
       Array $arguments
     ) use ($_app) {
-
       if (!empty($arguments)) {
-        // print_r($arguments);
+        $_app['args'] = $arguments;
       }
-
+      if ($request->getQueryParams()) {
+        $_app['get'] = $request->getQueryParams();
+      }
       return $response->write(
         Helper::TwigRender($_app)
       )->withStatus(200);
-
     });
 
     $_app['slim']->run();

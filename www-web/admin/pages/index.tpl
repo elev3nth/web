@@ -3,7 +3,11 @@
 <html lang="en-EN">
     <body>
       {% if logged == true %}
-        {% include 'home.tpl' %}
+        {% if args.category is defined %}
+          {% include 'home.tpl' %}
+        {% else %}
+          {% include 'dashboard.tpl' %}
+        {% endif %}
       {% else %}
         {% include 'login.tpl' %}
       {% endif %}

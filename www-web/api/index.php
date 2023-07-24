@@ -15,6 +15,8 @@ if (!empty(getallheaders())) {
   }
 }
 
+$responder = false;
+
 if (isset($payload) && !empty($payload)) {
 
   $uri = array_values(array_filter(explode('/', $_SERVER['REQUEST_URI'])));
@@ -26,7 +28,8 @@ if (isset($payload) && !empty($payload)) {
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Client-Addr: ' . $_SERVER['SERVER_ADDR'],
-        'Client-Host: ' . $_SERVER['SERVER_NAME']
+        'Client-Host: ' . $_SERVER['SERVER_NAME'],
+        'Client-Tmzn: ' . date_default_timezone_get()
     ]);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([$pld['payload']]));
@@ -36,6 +39,7 @@ if (isset($payload) && !empty($payload)) {
     $response = curl_exec($ch);
     curl_close($ch);
     echo $response;
+    $responder = true;
 
   }
 
@@ -44,9 +48,13 @@ if (isset($payload) && !empty($payload)) {
     if (!isset($_SESSION['csrf'])) {
       $_SESSION['csrf'] = md5(base64_encode(time()));
     }
-
     echo $_SESSION['csrf'];
+    $responder = true;
 
   }
 
+}
+
+if (!$responder) {
+  echo json_encode([ 'error' => true, 'message' => 'Invalid Access' ]);
 }
