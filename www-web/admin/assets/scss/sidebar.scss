@@ -1,4 +1,17 @@
 
 .sidebar {
   background-color: rgba($secondary-color, 0.5);
+  & > .sidelinks {
+    & > a {
+      display       : block;
+      color         : darken($secondary-color, 40%);
+      letter-spacing: 1.5px;
+      transition    : 0.7s all;
+      &.active,
+      &:hover {
+        color           : $primary-color;
+        background-color: rgba($secondary-color, 0.4);
+      }
+    }
+  }
 }

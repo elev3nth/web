@@ -23,7 +23,7 @@ abstract class Base {
   public function Routing() {
 
     set_time_limit(0);
-    error_reporting(0);
+    error_reporting(E_ALL);
     session_start();
 
     $_app                = [];

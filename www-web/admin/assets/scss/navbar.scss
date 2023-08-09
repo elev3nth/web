@@ -1,4 +1,18 @@
 
 .navbar {
   background-color: rgba($secondary-color, 0.5);
+  & > .navlink {
+    display       : inline-block;
+    font-family   : 'Bebas Neue', sans-serif;
+    color         : darken($secondary-color, 40%);
+    letter-spacing: 1.5px;
+    padding       : 0 0.5em;
+    padding-bottom: 0.1em;
+    transition    : 1s all;
+    &.active,
+    &:hover {
+      color        : $primary-color;
+      border-bottom: 1px solid $primary-color;
+    }
+  }
 }

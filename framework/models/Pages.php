@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace Web\Models;
 
-class Clients {
+class Pages {
 
   private $api;
   private $cnf = [
-    'table' => 'clients',
-    'cprfx' => 'client_',
+    'table' => 'pages',
+    'cprfx' => 'page_',
     'title' => [
-      'singular' => 'Client',
-      'plural'   => 'Clients'
+      'singular' => 'Page',
+      'plural'   => 'Pages'
     ]
   ];
 
   public function __construct($_api)  {
      $this->api = $_api;
      return $this;
-  }
-
-  public function Login() {
   }
 
 }

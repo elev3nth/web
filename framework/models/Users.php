@@ -13,7 +13,11 @@ class Users {
   private $api;
   private $cnf = [
     'table' => 'users',
-    'cprfx' => 'user_'
+    'cprfx' => 'user_',
+    'title' => [
+      'singular' => 'User',
+      'plural'   => 'Users'
+    ]
   ];
 
   public function __construct($_api)  {
@@ -21,8 +25,13 @@ class Users {
      return $this;
   }
 
+  public function Addz($a, $b) {
+    return $a + $b;
+  }
+
   public function Login() {
 
+    $host = false;
     $verify_user = new Pdo($this->api);
     $verified_user = $verify_user->Execute('
      SELECT * FROM
@@ -46,6 +55,8 @@ class Users {
         1
       ])
       ->Run();
+    }else{
+      $host = true;
     }
 
     if (!empty($verified_user) &&
@@ -59,7 +70,8 @@ class Users {
         'mname'  => $verified_user['user_middlename'],
         'lname'  => $verified_user['user_lastname'],
         'email'  => $verified_user['user_email'],
-        'dob'    => $verified_user['user_dob']
+        'dob'    => $verified_user['user_dob'],
+        'host'   => $host
       ];
     }
 

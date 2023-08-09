@@ -10,6 +10,7 @@ use \PHPMailer\PHPMailer\Exception;
 class Contact {
 
   private $api;
+  private $cnf;
 
   public function __construct($_api)  {
      $this->api = $_api;

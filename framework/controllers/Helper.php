@@ -13,6 +13,40 @@ class Helper {
     }
     if (isset($_SESSION['logged']) && !empty($_SESSION['logged'])) {
         $vars['logged'] = true;
+        $load_navbar = Helper::Connect($_app, 'categories/init-ctgs', [
+          'pkey' => $_app['env']['api_key'],
+          'host' => $_SERVER['HTTP_HOST'],
+          'body' => [
+            'user' => $_SESSION['logged']
+          ]
+        ]);
+        $load_sidebar = Helper::Connect($_app, 'apps/init-apps', [
+          'pkey' => $_app['env']['api_key'],
+          'host' => $_SERVER['HTTP_HOST'],
+          'body' => [
+            'user' => $_SESSION['logged']
+          ]
+        ]);
+        $load_content = Helper::Connect($_app, 'apps/load-app', [
+          'pkey' => $_app['env']['api_key'],
+          'host' => $_SERVER['HTTP_HOST'],
+          'body' => [
+            'user' => $_SESSION['logged'],
+            'args' => isset($_app['args']) ? $_app['args'] : false
+          ]
+        ]);
+        if (isset($load_navbar['success']) &&
+            $load_navbar['success']) {
+          $vars['navbar'] = $load_navbar['payload'];
+        }
+        if (isset($load_sidebar['success']) &&
+            $load_sidebar['success']) {
+          $vars['sidebar'] = $load_sidebar['payload'];
+        }
+        if (isset($load_content['success']) &&
+            $load_content['success']) {
+          $vars['content'] = $load_content['payload'];
+        }
     }
     if (isset($_app['args']) && !empty($_app['args'])) {
       $vars['args'] = $_app['args'];
