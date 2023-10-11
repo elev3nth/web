@@ -28,6 +28,12 @@
       {% endif %}
     {% endif %}
   {% endfor %}
+  {% if hidebc|default(false) != true %}
+    {% if args.page is defined %}
+      <i class="fa-solid fa-slash fa-xs fa-rotate-270 mx-1"></i>
+      <span class="font-bold text-[1.1em]">{{ args.page|title }}</span>
+    {% endif %}
+  {% endif %}
   {% if args.page != list %}
   <a href="{{ host~'/'~admin~'/'~bcnvslug~'/'~bcsbslug~'/'~list }}"
   class="

@@ -45,14 +45,14 @@ abstract class Methods {
       if ($request->GetHeaders() !== null) {
 
         foreach($request->GetHeaders() as $rhkey => $rhitem) {
-            if (isset($rhitem[0])) {
-              $hfix = explode('-', $rhkey);
-              if (!empty($hfix)) {
-                if (!empty($hfix[1]) && strlen($rhitem[0]) < 50) {
-                    $_api['headers'][strtolower($hfix[1])] = $rhitem[0];
-                }
+          if (isset($rhitem[0])) {
+            $hfix = explode('-', $rhkey);
+            if (!empty($hfix)) {
+              if (!empty($hfix[1]) && strlen($rhitem[0]) < 50) {
+                  $_api['headers'][strtolower($hfix[1])] = $rhitem[0];
               }
             }
+          }
         }
 
         if (!empty($_api['headers'])) {
