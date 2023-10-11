@@ -9,6 +9,7 @@
       rounded-[0.5em]
       bg-white/30
     ">
+      Dashboard
     </div>
   </div>
 </div>

@@ -9,11 +9,13 @@
       ">
         {{ citem.name|title }}
       </div>
-      <div class="text-left mx-3 my-1 lg:flex-1">
-        {% include [
-          '/forms/'~citem.type~'.tpl',
-          '/forms/text.tpl'
-        ] %}
+      <div class="text-left mx-3 my-1 py-[0.4em] lg:flex-1">
+        <b>
+          {% include [
+            '/forms/'~citem.type~'.tpl',
+            '/forms/text.tpl'
+          ] %}
+        </b>
       </div>
     </div>
   {% endfor %}

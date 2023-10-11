@@ -9,10 +9,14 @@
       rounded-[0.5em]
       bg-white/30
     ">
-      {% if args.page is defined %}
-        {% include '/'~args.page~'.tpl' %}
+      {% if args.application is defined %}
+        {% if args.page is defined %}
+          {% include '/'~args.page~'.tpl' %}
+        {% else %}
+          {% include '/list.tpl' %}
+        {% endif %}
       {% else %}
-        {% include '/list.tpl' %}
+        {% include '/categories.tpl' %}
       {% endif %}
     </div>
   </div>

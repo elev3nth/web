@@ -38,6 +38,9 @@ class Helper {
         if (isset($load_navbar['success']) &&
             $load_navbar['success']) {
           $vars['navbar'] = $load_navbar['payload'];
+          if (!isset($_app['args']['category'])) {
+            $vars['navbar'][0]['default'] = true;
+          }
         }
         if (isset($load_sidebar['success']) &&
             $load_sidebar['success']) {
@@ -47,9 +50,6 @@ class Helper {
             $load_content['success']) {
           $vars['content'] = $load_content['payload'];
         }
-    }
-    if (isset($_app['args']) && !empty($_app['args'])) {
-      $vars['args'] = $_app['args'];
     }
     if (isset($_app['get']) && !empty($_app['get'])) {
       $vars['get'] = $_app['get'];
@@ -64,6 +64,15 @@ class Helper {
     if (!empty($_app['env']['pages'])) {
       foreach($_app['env']['pages'] as $pagekey => $pageitem) {
         $vars[$pagekey] = $pageitem;
+      }
+    }
+    if (isset($_app['args']) && !empty($_app['args'])) {
+      $vars['args'] = $_app['args'];
+      $vars['links'] = [];
+      foreach($vars['args'] as $akey => $aitem) {
+        if (!in_array($aitem, $_app['env']['pages'])) {
+          $vars['links'][] = $aitem;
+        }
       }
     }
     return $vars;

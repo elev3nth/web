@@ -23,7 +23,7 @@ abstract class Base {
   public function Routing() {
 
     set_time_limit(0);
-    error_reporting(E_ALL);
+    error_reporting(0);
     session_start();
 
     $_app                = [];
@@ -95,7 +95,7 @@ abstract class Base {
       Array $arguments
     ) use ($_app) {
       if (!empty($arguments)) {
-        $_app['args'] = $arguments;
+        $_app['args'] = $arguments;        
       }
       if ($request->getQueryParams()) {
         $_app['get'] = $request->getQueryParams();

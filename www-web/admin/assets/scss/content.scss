@@ -1,9 +1,32 @@
 
+.breadcrumbs {
+  color: $primary-color;
+}
+
+.list-header-wrapper {
+  border-top: 0.5px solid rgba(black, 0.4);
+  border-bottom: 0.5px solid rgba(black, 0.4);
+}
+
 .list-header {
   font-family   : 'Roboto', sans-serif;
   letter-spacing: 0.1em;
 }
 .list-error {
+  font-family   : 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+}
+
+.records:hover {
+  background-color: rgba($primary-color, 0.5);
+  transition: all 1s ease-in-out;
+  & > .column {
+    color: $secondary-color;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.delete-msg {
   font-family   : 'Bebas Neue', sans-serif;
   letter-spacing: 0.1em;
 }

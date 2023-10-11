@@ -5,47 +5,53 @@ declare(strict_types=1);
 namespace Web\Models;
 
 use Web\Controllers\{
-  Pdo, Helper
+  Pdo, Functions, Helper
 };
 
 class Apps {
 
   private $api;
   private $cnf = [
-    'table'   => 'apps',
-    'cprfx'   => 'app_',
+    'db' => [
+      'table'   => 'apps',
+      'prefix'  => 'app_',
+      'uuidkey' => 'key',
+      'enabled' => true,
+      'sorted'  => true,
+      'crud'    => [ 'C','R','U','D' ]
+    ],
     'title'   => [
       'singular' => 'Application',
       'plural'   => 'Applications'
     ],
     'columns' => [
       [
-        'name' => 'id',
-        'type' => 'key'
-      ],
-      [
-        'name' => 'key',
-        'type' => 'uuid'
-      ],
-      [
-        'name' => 'category',
-        'type' => 'select'
-      ],
-      [
-        'name' => 'name',
-        'type' => 'text'
+        'name'  => 'name',
+        'type'  => 'text',
+        'link'  => true,
+        'title' => true,
+        'crud'  => [ 'C','R','U','D' ]
       ],
       [
         'name' => 'slug',
-        'type' => 'text'
+        'type' => 'text',
+        'crud' => [ 'C','R','U','D' ]
+      ],
+      [
+        'name'  => 'category',
+        'type'  => 'select',
+        'crud'  => [ 'C','R','U','D' ],
+        'class' => '\\Web\\Models\\Categories'
       ],
       [
         'name' => 'description',
-        'type' => 'textbox'
+        'type' => 'textbox',
+        'crud' => [ 'C','U','D' ]
       ],
       [
         'name'      => 'default',
         'type'      => 'switch',
+        'crud'      => [ 'C','U','D' ],
         'exclusive' => true
       ]
     ]
@@ -62,9 +68,9 @@ class Apps {
       $init_apps = new Pdo($this->api);
       $load_apps = $init_apps->Execute('
        SELECT * FROM
-       `'.$this->api['env']['db_prfx'].$this->cnf['table'].'`
-       WHERE `'.$this->cnf['cprfx'].'enabled` = ?
-       ORDER BY `'.$this->cnf['cprfx'].'sort` ASC
+       `'.$this->api['env']['db_prfx'].$this->cnf['db']['table'].'`
+       WHERE `'.$this->cnf['db']['prefix'].'enabled` = ?
+       ORDER BY `'.$this->cnf['db']['prefix'].'sort` ASC
       ', [ 1 ])
       ->Run();
     }
@@ -72,10 +78,10 @@ class Apps {
       $apps = [];
       foreach($load_apps aS $appkey => $appitem) {
         $apps[] = [
-          'ukey' => $appitem[$this->cnf['cprfx'].'key'],
-          'ckey' => $appitem[$this->cnf['cprfx'].'category'],
-          'name' => $appitem[$this->cnf['cprfx'].'name'],
-          'slug' => $appitem[$this->cnf['cprfx'].'slug']
+          'ukey' => $appitem[$this->cnf['db']['prefix'].'key'],
+          'ckey' => $appitem[$this->cnf['db']['prefix'].'category'],
+          'name' => $appitem[$this->cnf['db']['prefix'].'name'],
+          'slug' => $appitem[$this->cnf['db']['prefix'].'slug']
         ];
       }
       return $apps;
@@ -104,13 +110,61 @@ class Apps {
     else {
       $cnf = $this->cnf;
     }
+    if ($this->api['payload']['body']['user']['host']) {
+      $env = $this->api['env'];
+    }
+    else{
+      $env = $this->api['client']['env'];
+    }
     if (isset($cnf) && !empty($cnf)) {
+      $query = [];
+      $binds = [];
+      if (isset($this->api['payload']['body']['args']['params'])) {
+        if (Helper::UuidValidate(
+          $this->api['payload']['body']['args']['params']
+        )) {
+          $query[] = ' `'.$cnf['db']['prefix'].$cnf['db']['uuidkey'].'` = ? ';
+          $binds[] = $this->api['payload']['body']['args']['params'];
+        }
+      }
+      if ($cnf['db']['enabled']) {
+        $query[] = ' `'.$cnf['db']['prefix'].'enabled'.'` = ? ';
+        $binds[] = 1;
+      }
+      if ($cnf['db']['sorted']) {
+        $sortable = ' ORDER BY `'.$cnf['db']['prefix'].'sort` ASC ';
+      }
+      $init_apps = new Pdo($this->api);
+      $load_apps = $init_apps->Execute('
+       SELECT * FROM
+       `'.$env['db_prfx'].$cnf['db']['table'].'`
+       ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
+       ' ' . $sortable
+       , $binds)
+      ->Run();
       foreach($cnf['columns'] as $ckey => $citem) {
-        $cnf['columns'][$ckey]['varf'] = md5($cnf['cprfx'].$citem['name']);
+        $cnf['columns'][$ckey]['flds'] = $cnf['db']['prefix'].$citem['name'];
+        $cnf['columns'][$ckey]['varf'] = md5(
+          $cnf['db']['prefix'].$citem['name']
+        );
+        if (isset($citem['class'])) {
+          $cnf['columns'][$ckey]['opts'] = Functions::Options(
+            $_api, $citem['class']
+          );
+        }
       }
       return [
+        'table'   => [
+          'pfx' => $cnf['db']['prefix'],
+          'key' => $cnf['db']['uuidkey'],
+          'hsh' => md5($cnf['db']['prefix'].$cnf['db']['uuidkey']),
+          'enb' => $cnf['db']['enabled'] ? true : false,
+          'srt' => $cnf['db']['sorted'] ? true : false,
+          'crd' => $cnf['db']['crud'],
+        ],
         'title'   => $cnf['title'],
-        'columns' => $cnf['columns']
+        'columns' => $cnf['columns'],
+        'data'    => $load_apps ? $load_apps : false
       ];
     }
   }

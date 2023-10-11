@@ -6,5 +6,6 @@
   "license": "Unlicensed",
   "devDependencies": {
     "tailwindcss": "^3.3.3"
-  }
+  },
+  "dependencies": {}
 }

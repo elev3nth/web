@@ -2,7 +2,8 @@
   {% for nkey, nitem in navbar %}
   <a href="{{ host~'/'~admin~'/'~nitem.slug }}" class="
     navlink text-xl
-    {{ nitem.slug == args.category ? 'active' : '' }}
+    {{ nitem.slug == args.category or nitem.default|default(false) == true ?
+    'active' : '' }}
   ">{{ nitem.name }}</a>
   {% endfor %}
   <a href="javascript:void(0);" class="

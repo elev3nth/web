@@ -12,11 +12,40 @@ class Categories {
 
   private $api;
   private $cnf = [
-    'table' => 'categories',
-    'cprfx' => 'ctg_',
+    'db' => [
+      'table'   => 'categories',
+      'prefix'  => 'ctg_',
+      'uuidkey' => 'key',
+      'enabled' => true,
+      'sorted'  => true,
+    ],
     'title' => [
       'singular' => 'Category',
       'plural'   => 'Categories'
+    ],
+    'columns' => [
+      [
+        'name'  => 'name',
+        'type'  => 'text',
+        'link'  => true,
+        'title' => true,
+        'crud'  => [ 'C','R','U','D' ]
+      ],
+      [
+        'name' => 'slug',
+        'type' => 'text',
+        'crud' => [ 'C','R','U','D' ]
+      ],
+      [
+        'name' => 'parent',
+        'type' => 'select',
+        'crud' => [ 'C','R','U','D' ]
+      ],
+      [
+        'name' => 'description',
+        'type' => 'textbox',
+        'crud' => [ 'C','U','D' ]
+      ]
     ]
   ];
 
@@ -31,9 +60,9 @@ class Categories {
       $init_categories = new Pdo($this->api);
       $load_categories = $init_categories->Execute('
        SELECT * FROM
-       `'.$this->api['env']['db_prfx'].$this->cnf['table'].'`
-       WHERE `'.$this->cnf['cprfx'].'enabled` = ?
-       ORDER BY `'.$this->cnf['cprfx'].'sort` ASC
+       `'.$this->api['env']['db_prfx'].$this->cnf['db']['table'].'`
+       WHERE `'.$this->cnf['db']['prefix'].'enabled` = ?
+       ORDER BY `'.$this->cnf['db']['prefix'].'sort` ASC
       ', [ 1 ])
       ->Run();
     }
@@ -41,9 +70,9 @@ class Categories {
       $ctgs = [];
       foreach($load_categories aS $ctgkey => $ctgitem) {
         $ctgs[] = [
-          'ukey' => $ctgitem[$this->cnf['cprfx'].'key'],
-          'name' => $ctgitem[$this->cnf['cprfx'].'name'],
-          'slug' => $ctgitem[$this->cnf['cprfx'].'slug']
+          'ukey' => $ctgitem[$this->cnf['db']['prefix'].'key'],
+          'name' => $ctgitem[$this->cnf['db']['prefix'].'name'],
+          'slug' => $ctgitem[$this->cnf['db']['prefix'].'slug']
         ];
       }
       return $ctgs;
