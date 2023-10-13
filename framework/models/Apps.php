@@ -149,7 +149,7 @@ class Apps {
         );
         if (isset($citem['class'])) {
           $cnf['columns'][$ckey]['opts'] = Functions::Options(
-            $_api, $citem['class']
+            $this->api, $citem['class']
           );
         }
       }
