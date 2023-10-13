@@ -39,7 +39,8 @@ class Categories {
       [
         'name' => 'parent',
         'type' => 'select',
-        'crud' => [ 'C','R','U','D' ]
+        'crud' => [ 'C','R','U','D' ],
+        'class' => '\\Web\\Models\\Categories'
       ],
       [
         'name' => 'description',
