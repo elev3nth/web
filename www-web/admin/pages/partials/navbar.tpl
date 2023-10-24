@@ -1,9 +1,20 @@
 <div class="navbar w-full h-[4em] p-[1.2em] px-[3em] text-right">
+  {% set navctg = '' %}
+  {% for ctg in args.category %}
+    {% for nkey, nitem in navbar %}
+      {% if nitem.slug == ctg %}
+        {% set navctg = nitem.slug %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
   {% for nkey, nitem in navbar %}
   <a href="{{ host~'/'~admin~'/'~nitem.slug }}" class="
     navlink text-xl
-    {{ nitem.slug == args.category or nitem.default|default(false) == true ?
-    'active' : '' }}
+    {% if navctg != '' %}
+      {{ nitem.slug == navctg ? 'active' : '' }}
+    {% else %}
+      {{ nitem.default|default(false) == true ? 'active' : '' }}
+    {% endif %}
   ">{{ nitem.name }}</a>
   {% endfor %}
   <a href="javascript:void(0);" class="

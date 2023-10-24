@@ -41,7 +41,7 @@ abstract class Base {
     $_app['env']['root'] = str_replace('/.env', '',
       Helper::Nix(realpath('.env'))
     );
-    $_app['slim']        = AppFactory::create();
+    $_app['slim'] = AppFactory::create();
 
     date_default_timezone_set($_app['env']['tz']);
 
@@ -88,14 +88,14 @@ abstract class Base {
     });
 
     $_app['slim']->get('/'.$_app['env']['pages']['admin'].
-    '/[{category}[/{application}[/{page}[/{params:.*}]]]]',
+    '/[{params:.*}]',
     function (
       Request $request,
       Response $response,
       Array $arguments
     ) use ($_app) {
       if (!empty($arguments)) {
-        $_app['args'] = $arguments;        
+        $_app['args'] = $arguments;
       }
       if ($request->getQueryParams()) {
         $_app['get'] = $request->getQueryParams();

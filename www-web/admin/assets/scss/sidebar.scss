@@ -13,5 +13,16 @@
         background-color: rgba($secondary-color, 0.4);
       }
     }
+    & > a.sidelink-ctg {
+      display       : block;
+      color         : darken($primary-color, 40%);
+      letter-spacing: 1.5px;
+      transition    : 0.7s all;
+      &.active,
+      &:hover {
+        color           : $secondary-color;
+        background-color: rgba($primary-color, 0.4);
+      }
+    }
   }
 }

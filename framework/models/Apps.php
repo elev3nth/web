@@ -76,7 +76,7 @@ class Apps {
     }
     if (!empty($load_apps)) {
       $apps = [];
-      foreach($load_apps aS $appkey => $appitem) {
+      foreach($load_apps aS $appkey => $appitem) {        
         $apps[] = [
           'ukey' => $appitem[$this->cnf['db']['prefix'].'key'],
           'ckey' => $appitem[$this->cnf['db']['prefix'].'category'],

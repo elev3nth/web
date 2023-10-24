@@ -27,14 +27,6 @@ class Helper {
             'user' => $_SESSION['logged']
           ]
         ]);
-        $load_content = Helper::Connect($_app, 'apps/load-app', [
-          'pkey' => $_app['env']['api_key'],
-          'host' => $_SERVER['HTTP_HOST'],
-          'body' => [
-            'user' => $_SESSION['logged'],
-            'args' => isset($_app['args']) ? $_app['args'] : false
-          ]
-        ]);
         if (isset($load_navbar['success']) &&
             $load_navbar['success']) {
           $vars['navbar'] = $load_navbar['payload'];
@@ -46,10 +38,42 @@ class Helper {
             $load_sidebar['success']) {
           $vars['sidebar'] = $load_sidebar['payload'];
         }
-        if (isset($load_content['success']) &&
-            $load_content['success']) {
-          $vars['content'] = $load_content['payload'];
-        }
+    }
+    if ($_app['args']['params']) {
+      $params = explode('/', $_app['args']['params']);
+      $nslugs = array_column($vars['navbar'], 'slug');
+      $cslugs = array_shift(array_filter(array_column($vars['navbar'], 'sctg')));
+      $sslugs = array_column($vars['sidebar'], 'slug');
+      foreach($params as $pkey => $pitem) {
+         if (in_array($pitem, $nslugs)) {
+           $_app['args']['category'][] = $pitem;
+         }
+         if (!empty($cslugs)) {
+          foreach($cslugs as $cskey => $csitem) {
+            if ($csitem['slug'] == $pitem) {
+              $_app['args']['category'][] = $pitem;
+            }
+          }
+         }
+         if (in_array($pitem, $sslugs)) {
+           $_app['args']['application'] = $pitem;
+         }
+         if (isset($_app['env']['pages'][$pitem])) {
+            $_app['args']['page'] = $pitem;
+         }
+      }
+      $load_content = Helper::Connect($_app, 'apps/load-app', [
+        'pkey' => $_app['env']['api_key'],
+        'host' => $_SERVER['HTTP_HOST'],
+        'body' => [
+          'user' => $_SESSION['logged'],
+          'args' => $_app['args']
+        ]
+      ]);
+      if (isset($load_content['success']) &&
+          $load_content['success']) {
+        $vars['content'] = $load_content['payload'];
+      }
     }
     if (isset($_app['get']) && !empty($_app['get'])) {
       $vars['get'] = $_app['get'];

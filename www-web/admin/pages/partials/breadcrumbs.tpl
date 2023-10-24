@@ -1,3 +1,23 @@
+{% macro categories(param) %}
+  {% for sckey, scitem in param.sctg %}
+    {% if scitem.slug in param.args.category %}
+      {% if param.hdbc|default(false) != true %}
+        <i class="fa-solid fa-slash fa-xs fa-rotate-270 mx-1"></i>
+        <span class="font-bold text-[1.1em]">{{ scitem.name }}</span>
+      {% else %}
+        &nbsp;
+      {% endif %}
+    {% endif %}
+    {% if scitem.sctg is not empty %}
+      {% set paramx = {
+        'sctg' : scitem.sctg,
+        'args' : args,
+        'hdbc' : hdbc
+      } %}
+      {{ _self.categories(paramx) }}
+    {% endif %}
+  {% endfor %}
+{% endmacro categories %}
 <div class="
   w-full p-3 rounded-tr-[0.3em] rounded-tl-[0.3em]
   bg-white breadcrumbs py-2
@@ -8,13 +28,21 @@
   {% set bcnvslug = '' %}
   {% set bcsbslug = '' %}
   {% for nvbkey, nvbitem in navbar %}
-    {% if nvbitem.slug in links %}
+    {% if nvbitem.slug in args.category %}
       {% set bcnvslug = nvbitem.slug %}
       {% if hidebc|default(false) != true %}
         <span class="font-bold text-[1.1em]">{{ nvbitem.name }}</span>
       {% else %}
         &nbsp;
       {% endif %}
+    {% endif %}
+    {% if nvbitem.sctg is not empty %}
+      {% set param = {
+        'sctg' : nvbitem.sctg,
+        'args' : args,
+        'hdbc' : hidebc
+      } %}
+      {{ _self.categories(param) }}
     {% endif %}
   {% endfor %}
   {% for sbrkey, sbritem in sidebar %}
