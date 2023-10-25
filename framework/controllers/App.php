@@ -99,7 +99,7 @@ abstract class Base {
       }
       if ($request->getQueryParams()) {
         $_app['get'] = $request->getQueryParams();
-      }
+      }      
       return $response->write(
         Helper::TwigRender($_app)
       )->withStatus(200);

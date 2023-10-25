@@ -1,5 +1,6 @@
 {% if content.columns is not empty %}
   {% include '/partials/breadcrumbs.tpl' %}
+  {% include '/partials/pagination.tpl' %}
   <div class="
     list-header-wrapper bg-white sticky top-0
     lg:flex
@@ -68,8 +69,9 @@
       <br />
       No {{ content.title.plural }} Found
     <h2>
-  {% endif %}  
+  {% endif %}
   {% set hidebc = true %}
+  {% include '/partials/pagination.tpl' %}
   {% include '/partials/breadcrumbs.tpl' %}
 {% else %}
   <h2 class="

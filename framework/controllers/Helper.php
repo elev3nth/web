@@ -41,8 +41,12 @@ class Helper {
     }
     if ($_app['args']['params']) {
       $params = explode('/', $_app['args']['params']);
-      $nslugs = array_column($vars['navbar'], 'slug');
-      $cslugs = array_shift(array_filter(array_column($vars['navbar'], 'sctg')));
+      if (isset($vars['navbar'])) {
+        $nslugs = array_column($vars['navbar'], 'slug');
+      }
+      if (isset($vars['navbar']['sctg'])) {
+        $cslugs = array_shift(array_filter(array_column($vars['navbar'], 'sctg')));
+      }
       $sslugs = array_column($vars['sidebar'], 'slug');
       foreach($params as $pkey => $pitem) {
          if (in_array($pitem, $nslugs)) {
@@ -60,6 +64,14 @@ class Helper {
          }
          if (isset($_app['env']['pages'][$pitem])) {
             $_app['args']['page'] = $pitem;
+         }
+         if (isset($pitem) && is_numeric($pitem)) {
+            $_app['args']['pagenum'] = $pitem;
+         }else{
+           $_app['args']['pagenum'] = 1;
+         }
+         if (Helper::UuidValidate($pitem)) {
+           $_app['args']['uuid'] = $pitem;
          }
       }
       $load_content = Helper::Connect($_app, 'apps/load-app', [
@@ -91,11 +103,23 @@ class Helper {
       }
     }
     if (isset($_app['args']) && !empty($_app['args'])) {
-      $vars['args'] = $_app['args'];
+      $vars['args']  = $_app['args'];
       $vars['links'] = [];
       foreach($vars['args'] as $akey => $aitem) {
-        if (!in_array($aitem, $_app['env']['pages'])) {
-          $vars['links'][] = $aitem;
+        if ($akey != 'params' &&
+            $akey != 'pagenum' &&
+            $akey != 'uuid' &&
+            $akey != 'page'
+        ) {
+          if (!in_array($aitem, $_app['env']['pages'])) {
+            if (is_array($aitem)) {
+              foreach($aitem as $ait) {
+                $vars['links'][] = $ait;
+              }
+            }else{
+              $vars['links'][] = $aitem;
+            }
+          }
         }
       }
     }

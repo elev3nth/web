@@ -76,7 +76,7 @@ class Apps {
     }
     if (!empty($load_apps)) {
       $apps = [];
-      foreach($load_apps aS $appkey => $appitem) {        
+      foreach($load_apps aS $appkey => $appitem) {
         $apps[] = [
           'ukey' => $appitem[$this->cnf['db']['prefix'].'key'],
           'ckey' => $appitem[$this->cnf['db']['prefix'].'category'],
@@ -119,12 +119,12 @@ class Apps {
     if (isset($cnf) && !empty($cnf)) {
       $query = [];
       $binds = [];
-      if (isset($this->api['payload']['body']['args']['params'])) {
+      if (isset($this->api['payload']['body']['args']['uuid'])) {
         if (Helper::UuidValidate(
-          $this->api['payload']['body']['args']['params']
+          $this->api['payload']['body']['args']['uuid']
         )) {
           $query[] = ' `'.$cnf['db']['prefix'].$cnf['db']['uuidkey'].'` = ? ';
-          $binds[] = $this->api['payload']['body']['args']['params'];
+          $binds[] = $this->api['payload']['body']['args']['uuid'];
         }
       }
       if ($cnf['db']['enabled']) {
@@ -134,14 +134,41 @@ class Apps {
       if ($cnf['db']['sorted']) {
         $sortable = ' ORDER BY `'.$cnf['db']['prefix'].'sort` ASC ';
       }
+
       $init_apps = new Pdo($this->api);
-      $load_apps = $init_apps->Execute('
-       SELECT * FROM
-       `'.$env['db_prfx'].$cnf['db']['table'].'`
-       ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
-       ' ' . $sortable
-       , $binds)
-      ->Run();
+
+      if (!isset($this->api['payload']['body']['args']['uuid'])) {
+        if ($this->api['payload']['body']['args']['pagenum'] == 1) {
+          $limit = ' LIMIT 0, ' . $this->api['env']['db_pges'];
+        }else{
+          $limit = ' LIMIT ' . (
+            $this->api['payload']['body']['args']['pagenum'] - 1 *
+            $this->api['env']['db_pges']
+          ) . ', ' . $this->api['env']['db_pges'];
+        }
+        $count_apps = $init_apps->Execute('
+         SELECT COUNT(*) as total FROM
+         `'.$env['db_prfx'].$cnf['db']['table'].'`
+         ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
+         ' ' . $sortable
+         , $binds)
+        ->Run();
+        $load_apps = $init_apps->Execute('
+         SELECT * FROM
+         `'.$env['db_prfx'].$cnf['db']['table'].'`
+         ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
+         ' ' . $sortable . $limit
+         , $binds)
+        ->Run();
+      }else{
+        $load_apps = $init_apps->Execute('
+         SELECT * FROM
+         `'.$env['db_prfx'].$cnf['db']['table'].'`
+         ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
+         ' ' . $sortable . ' LIMIT 0, 1'
+         , $binds)
+        ->Run();
+      }
       foreach($cnf['columns'] as $ckey => $citem) {
         $cnf['columns'][$ckey]['flds'] = $cnf['db']['prefix'].$citem['name'];
         $cnf['columns'][$ckey]['varf'] = md5(
@@ -164,6 +191,11 @@ class Apps {
         ],
         'title'   => $cnf['title'],
         'columns' => $cnf['columns'],
+        'paging'  => isset($count_apps) ? Functions::Pagination(
+          $this->api['payload']['body']['args']['pagenum'],
+          $this->api['env']['db_pges'],
+          $count_apps['total']
+        ) : 0,
         'data'    => $load_apps ? $load_apps : false
       ];
     }
