@@ -39,7 +39,7 @@ class Helper {
           $vars['sidebar'] = $load_sidebar['payload'];
         }
     }
-    if ($_app['args']['params']) {
+    if (isset($_app['args']) && $_app['args']['params']) {
       $params = explode('/', $_app['args']['params']);
       if (isset($vars['navbar'])) {
         $nslugs = array_column($vars['navbar'], 'slug');
@@ -103,8 +103,9 @@ class Helper {
       }
     }
     if (isset($_app['args']) && !empty($_app['args'])) {
-      $vars['args']  = $_app['args'];
-      $vars['links'] = [];
+      $vars['args']    = $_app['args'];
+      $vars['buttons'] = $_app['env']['buttons'];
+      $vars['links']   = [];
       foreach($vars['args'] as $akey => $aitem) {
         if ($akey != 'params' &&
             $akey != 'pagenum' &&
@@ -122,6 +123,9 @@ class Helper {
           }
         }
       }
+    }
+    if (isset($_app['locale'])) {
+      $vars['locale'] = $_app['locale'];
     }
     return $vars;
   }

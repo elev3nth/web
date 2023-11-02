@@ -22,7 +22,7 @@
   <select
     id="{{ citem.varf }}"
     name="{{ citem.varf }}"
-    class="w-full h-[2em] p-1">
+    class="w-full h-[2em] p-1 rounded-sm border border-gray-400">
     {% if optvalue is empty %}
       <option value="">
         Please Select A  {{ content.title.singular }}

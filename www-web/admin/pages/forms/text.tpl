@@ -20,5 +20,5 @@
     id="{{ citem.varf }}"
     name="{{ citem.varf }}"
     value="{{ args.page != create ? content.data[citem.flds] : false }}"
-    class="w-full h-[2em] p-2" />
+    class="w-full h-[2em] p-2 border rounded-sm border-gray-400" />
 {% endif %}

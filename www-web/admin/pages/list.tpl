@@ -67,7 +67,14 @@
     ">
       <i class="fa-solid fa-circle-exclamation m-0 my-3 mt-[0.3em] fa-2x"></i>
       <br />
-      No {{ content.title.plural }} Found
+      {% if content.title.plural is defined %}
+        No {{ content.title.plural }} Found
+        {{ locale.backend.content.errors.no_records_configured|replace({
+          '[%APP%]' : content.title.plural
+        }) }}
+      {% else %}
+        {{ locale.backend.content.errors.no_records_configured }}
+      {% endif %}
     <h2>
   {% endif %}
   {% set hidebc = true %}
@@ -80,6 +87,11 @@
   ">
     <i class="fa-solid fa-screwdriver-wrench m-0 my-3 mt-[0.3em] fa-2x"></i>
     <br />
-    {{ content.title.plural }} Application Is Not Configured
+    {% if content.title.plural is defined %}
+      {{ content.title.plural ~ ' ' ~
+         locale.backend.content.errors.not_configured }}
+    {% else %}
+      {{ locale.backend.content.errors.app_not_configured }}
+    {% endif %}
   <h2>
 {% endif %}

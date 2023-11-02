@@ -1,8 +1,8 @@
 {% if content.columns is not empty %}
   {% include '/partials/breadcrumbs.tpl' %}
-  <br />
+  <hr />
   {% for ckey, citem in content.columns %}
-    <div class="lg:flex">
+    <div class="lg:flex pt-2 border bg-gray-100">
       <div class="
         text-right align-middle py-[0.4em] my-1
         lg:flex-none lg:w-[100px]
@@ -17,7 +17,7 @@
       </div>
     </div>
   {% endfor %}
-  <br />
+  <hr />
   {% set hidebc = true %}
   {% include '/partials/breadcrumbs.tpl' %}
 {% else %}
@@ -27,6 +27,11 @@
   ">
     <i class="fa-solid fa-screwdriver-wrench m-0 my-3 mt-[0.3em] fa-2x"></i>
     <br />
-    {{ content.title.plural }} Application Is Not Configured
+    {% if content.title.plural is defined %}
+      {{ content.title.plural ~ ' ' ~
+         locale.backend.content.errors.not_configured }}
+    {% else %}
+      {{ locale.backend.content.errors.app_not_configured }}
+    {% endif %}
   <h2>
 {% endif %}

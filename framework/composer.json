@@ -10,12 +10,13 @@
         "twig/twig": "3.x-dev",
         "scssphp/scssphp": "dev-master",
         "matthiasmullie/minify": "dev-master"
-    },    
+    },
     "license": "Unlicensed",
     "autoload": {
         "psr-4": {
             "Web\\Controllers\\": "controllers/",
-            "Web\\Models\\": "models/"
+            "Web\\Models\\": "models/",
+            "Web\\Locales\\": "locales/"
         }
     },
     "authors": [

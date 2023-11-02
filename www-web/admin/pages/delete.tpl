@@ -9,15 +9,22 @@
     ">
       <i class="fa-solid fa-circle-exclamation m-0 my-3 mt-[0.3em] fa-2x"></i>
       <h1>Are you sure to delete {{ content.data[citem.flds] }}?</h1>
-      <button type="button" id="gobackBtn" name="gobackBtn" class="
-      border border-solid border-black rounded-md text-slate-400
-      font-bold p-2 px-5 h-14 bg-gradient-to-r from-slate-100 to-slate-300
-      text-lg mx-5"
-      onclick="history.back()">Go Back</button>
-      <button type="submit" id="deleteBtn" name="deleteBtn" class="
-      border border-solid border-black rounded-md text-white
-      font-bold p-2 px-5 h-14 bg-gradient-to-r from-slate-600 to-black
-      text-lg mx-5">Continue</button>
+      <div class="text-center w-full my-[0.4em] flex justify-center">
+        <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~list }}"
+        class="w-[8em] text-center text-xl font-bold tracking-normal
+          block mx-[0.8em] p-2 px-2 border rounded-md
+          text-slate-400 bg-slate-100 hover:bg-slate-200 hover:text-slate-700
+        " title="{{ buttons.cancel }}">
+          <i class="fa-solid fa-xmark"></i> {{ buttons.cancel|upper }}
+        </a>
+        <button type="submit" id="deleteRecord" name="deleteRecord"
+        class="w-[8em] text-center text-xl font-bold
+          block mx-[0.8em] p-2 px-2 border rounded-md
+          text-slate-400 bg-red-100 hover:bg-red-200 hover:text-slate-700
+        " title="{{ buttons.continue }}">
+          <i class="fa-solid fa-floppy-disk"></i> {{ buttons.continue|upper }}
+        </button>
+      </div>
     </div>
     {% endif %}
   {% endfor %}
@@ -31,6 +38,11 @@
   ">
     <i class="fa-solid fa-screwdriver-wrench m-0 my-3 mt-[0.3em] fa-2x"></i>
     <br />
-    {{ content.title.plural }} Application Is Not Configured
+    {% if content.title.plural is defined %}
+      {{ content.title.plural ~ ' ' ~
+         locale.backend.content.errors.not_configured }}
+    {% else %}
+      {{ locale.backend.content.errors.app_not_configured }}
+    {% endif %}
   <h2>
 {% endif %}

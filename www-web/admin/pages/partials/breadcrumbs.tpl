@@ -20,7 +20,7 @@
 {% endmacro categories %}
 <div class="
   w-full p-3 rounded-tr-[0.3em] rounded-tl-[0.3em]
-  bg-white breadcrumbs py-2
+  bg-white breadcrumbs py-4
 ">
   {% if hidebc|default(false) != true %}
   <i class="fa-solid fa-caret-right fa-lg mr-2"></i>
@@ -58,7 +58,7 @@
       <span class="font-bold text-[1.1em]">{{ args.page|title }}</span>
     {% endif %}
   {% endif %}
-  {% if hidebc|default(false) != true %}
+  {% if hidebc|default(false) != true and args.page == list %}
     {% if content.paging.total is defined %}
       <i class="fa-solid fa-slash fa-xs fa-rotate-270 mx-1"></i>
       <span class="font-bold text-[1.1em]">
@@ -67,20 +67,36 @@
       </span>
     {% endif %}
   {% endif %}
-  {% if args.page != list %}
+  {% if args.page != list and args.page != edit and args.page != delete %}
   <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~list }}"
-  class="
-    block float-right mx-1 p-1 px-2 mt-[-0.3em] border rounded-md
+  class="w-[7em] text-center font-bold
+    block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
     text-slate-400 bg-slate-100 hover:bg-slate-200 hover:text-slate-500
-  " title="Back">
-    <i class="fa-solid fa-angles-left font-bold"></i>
+  " title="{{ buttons.back }}">
+    <i class="fa-solid fa-angles-left"></i> {{ buttons.back|upper }}
   </a>
   {% endif %}
+  {% if args.page == edit or args.page == new %}
+  <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~list }}"
+  class="w-[7em] text-center font-bold
+    block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
+    text-slate-400 bg-red-100 hover:bg-red-200 hover:text-slate-700
+  " title="{{ buttons.cancel }}">
+    <i class="fa-solid fa-xmark"></i> {{ buttons.cancel|upper }}
+  </a>
+  <button type="submit" id="saveRecord" name="saveRecord"
+  class="w-[7em] text-center font-bold
+    block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
+    text-slate-400 bg-green-200 hover:bg-green-400 hover:text-slate-700
+  " title="{{ buttons.save }}">
+    <i class="fa-solid fa-floppy-disk"></i> {{ buttons.save|upper }}
+  </button>
+  {% endif %}
   <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~create }}"
-  class="
-    block float-right mx-1 p-1 px-2 mt-[-0.3em] border rounded-md
+  class="w-[7em] text-center font-bold
+    block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
     text-slate-400 bg-slate-100 hover:bg-slate-200 hover:text-slate-500
   " title="{{ create|title }}">
-    <i class="fa-solid fa-plus font-bold"></i>
+    <i class="fa-solid fa-plus"></i> {{ buttons.create|upper }}
   </a>
 </div>

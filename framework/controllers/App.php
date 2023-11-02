@@ -23,11 +23,12 @@ abstract class Base {
   public function Routing() {
 
     set_time_limit(0);
-    error_reporting(0);
+    error_reporting(E_ALL);
     session_start();
 
     $_app                = [];
     $_app['env']         = parse_ini_file(realpath('.env'), true);
+
     if (isset($_app['env']['pages']) &&
         !empty($_app['env']['pages'])
     ) {
@@ -38,9 +39,30 @@ abstract class Base {
         $_app['env']['pages'][trim($pagekey)] = trim($pageitem);
       }
     }
+
+    if (isset($_app['env']['buttons']) &&
+        !empty($_app['env']['buttons'])
+    ) {
+      $buttons = explode(',', $_app['env']['buttons']);
+      $_app['env']['buttons'] = [];
+      foreach($buttons as $button) {
+        list($buttonkey, $buttonitem) = explode('=', $button);
+        $_app['env']['buttons'][trim($buttonkey)] = trim($buttonitem);
+      }
+    }
+
     $_app['env']['root'] = str_replace('/.env', '',
       Helper::Nix(realpath('.env'))
     );
+
+    if ($_app['env']['locale']) {
+      $locale_name  = '\\Web\\Locales\\'.ucwords($_app['env']['locale']);
+      if (class_exists($locale_name)) {
+        $locale_class   = new $locale_name;
+        $_app['locale'] = $locale_class->__construct();
+      }
+    }
+
     $_app['slim'] = AppFactory::create();
 
     date_default_timezone_set($_app['env']['tz']);
@@ -99,7 +121,7 @@ abstract class Base {
       }
       if ($request->getQueryParams()) {
         $_app['get'] = $request->getQueryParams();
-      }      
+      }
       return $response->write(
         Helper::TwigRender($_app)
       )->withStatus(200);
