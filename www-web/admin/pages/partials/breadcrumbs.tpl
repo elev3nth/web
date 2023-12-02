@@ -57,6 +57,20 @@
       <i class="fa-solid fa-slash fa-xs fa-rotate-270 mx-1"></i>
       <span class="font-bold text-[1.1em]">{{ args.page|title }}</span>
     {% endif %}
+    {% if args.page != list and args.page != create %}
+      {% set fieldtitle  = '' %}
+      {% for bckey, bcitem in content.columns %}
+        {% if bcitem.title|default(false) == true %}
+        {% set fieldtitle = bcitem.flds %}
+        {% endif %}
+      {% endfor %}
+      {% if fieldtitle is not empty %}
+        <i class="fa-solid fa-slash fa-xs fa-rotate-270 mx-1"></i>
+        <span class="font-bold text-[1.1em]">
+          {{ content.data[fieldtitle] }}
+        </span>
+      {% endif %}
+    {% endif %}
   {% endif %}
   {% if hidebc|default(false) != true and args.page == list %}
     {% if content.paging.total is defined %}

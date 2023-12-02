@@ -22,12 +22,17 @@ abstract class Base {
 
   public function Routing() {
 
-    set_time_limit(0);
-    error_reporting(E_ALL);
-    session_start();
-
     $_app                = [];
     $_app['env']         = parse_ini_file(realpath('.env'), true);
+
+
+    if ($_app['env']['dev']) {
+      error_reporting(E_ALL);
+    }else{
+      error_reporting(0);
+    }
+    set_time_limit(0);
+    session_start();
 
     if (isset($_app['env']['pages']) &&
         !empty($_app['env']['pages'])
