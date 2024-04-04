@@ -1,10 +1,12 @@
 
 var UserLogin = (() => {
+
   let uname = document.querySelector('#userName');
   let upass = document.querySelector('#userPass');
   let remem = document.querySelector('#rememberMe');
   let ulogn = document.querySelector('#userLogin');
   let ucsrf = document.querySelector('#userCsrf');
+
   if (uname && upass && ulogn && ucsrf) {
 
     uname.focus();
@@ -22,5 +24,7 @@ var UserLogin = (() => {
     });
 
   }
+  
   return false;
+
 });

@@ -28,10 +28,12 @@ class Helper {
           ]
         ]);
         if (isset($load_navbar['success']) &&
-            $load_navbar['success']) {
+          $load_navbar['success']) {
           $vars['navbar'] = $load_navbar['payload'];
           if (!isset($_app['args']['category'])) {
-            $vars['navbar'][0]['default'] = true;
+            if (!empty($vars['navbar'])) {
+              $vars['navbar'][0]['default'] = true;
+            }
           }
         }
         if (isset($load_sidebar['success']) &&
@@ -45,7 +47,9 @@ class Helper {
         $nslugs = array_column($vars['navbar'], 'slug');
       }
       if (isset($vars['navbar']['sctg'])) {
-        $cslugs = array_shift(array_filter(array_column($vars['navbar'], 'sctg')));
+        $cslugs = array_shift(array_filter(
+          array_column($vars['navbar'], 'sctg')
+        ));
       }
       $sslugs = array_column($vars['sidebar'], 'slug');
       foreach($params as $pkey => $pitem) {
@@ -126,6 +130,10 @@ class Helper {
     }
     if (isset($_app['locale'])) {
       $vars['locale'] = $_app['locale'];
+    }
+    if (isset($_SESSION['crud_response'])) {
+      $vars['crud_response'] = $_SESSION['crud_response'];
+      unset($_SESSION['crud_response']);
     }
     return $vars;
   }

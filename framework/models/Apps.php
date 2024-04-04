@@ -49,10 +49,10 @@ class Apps {
         'crud' => [ 'C','U','D' ]
       ],
       [
-        'name'      => 'default',
-        'type'      => 'switch',
-        'crud'      => [ 'C','U','D' ],
-        'exclusive' => true
+        'name'   => 'default',
+        'type'   => 'switch',
+        'crud'   => [ 'C','U','D' ],
+        'toggle' => true
       ]
     ]
   ];
@@ -90,7 +90,8 @@ class Apps {
 
   }
 
-  public function LoadApp() {
+  private function LoadModel() {
+
     if (
       $this->api['payload']['body']['args']['application'] != 'applications'
     ) {
@@ -113,10 +114,22 @@ class Apps {
     if ($this->api['payload']['body']['user']['host']) {
       $env = $this->api['env'];
     }
-    else{
+    else {
       $env = $this->api['client']['env'];
     }
-    if (isset($cnf) && !empty($cnf)) {
+    return [
+      'cnf' => $cnf,
+      'env' => $env
+    ];
+
+  }
+
+  public function LoadApp() {
+
+    $setup = self::LoadModel();
+    $cnf   = $setup['cnf'];
+    $env   = $setup['env'];
+    if (!empty($cnf)) {
       $query = [];
       $binds = [];
       if (isset($this->api['payload']['body']['args']['uuid'])) {
@@ -187,7 +200,7 @@ class Apps {
           'hsh' => md5($cnf['db']['prefix'].$cnf['db']['uuidkey']),
           'enb' => $cnf['db']['enabled'] ? true : false,
           'srt' => $cnf['db']['sorted'] ? true : false,
-          'crd' => $cnf['db']['crud'],
+          'crd' => $cnf['db']['crud']
         ],
         'title'   => $cnf['title'],
         'columns' => $cnf['columns'],
@@ -199,6 +212,84 @@ class Apps {
         'data'    => $load_apps ? $load_apps : false
       ];
     }
+
+  }
+
+  public function Create() {
+    $setup = self::LoadModel();
+    $cnf   = $setup['cnf'];
+    $env   = $setup['env'];
+    return $this->api['payload']['body'];
+  }
+
+  public function Edit() {
+
+    $setup = self::LoadModel();
+    $cnf   = $setup['cnf'];
+    $env   = $setup['env'];
+    if (!empty($cnf)) {
+      if (isset($this->api['payload']['body']['args']['uuid'])) {
+        if (Helper::UuidValidate(
+          $this->api['payload']['body']['args']['uuid']
+        )) {
+          $init_record  = new Pdo($this->api);
+          $check_record = $init_record->Execute('
+           SELECT * FROM
+           `'.$env['db_prfx'].$cnf['db']['table'].'`'.
+           ' WHERE `'.$cnf['db']['prefix'].$cnf['db']['uuidkey'].'` = ? '.
+           ' LIMIT 0, 1 '
+           , [ $this->api['payload']['body']['args']['uuid'] ])
+          ->Run();
+          if (!empty($check_record)) {
+            $query  = [];
+            $binds  = [];
+            $record = [];
+            foreach($cnf['columns'] as $ckey => $citem) {
+              $hsh_name = md5($cnf['db']['prefix'].$citem['name']);
+              if (isset($this->api['payload']['body']['data'][$hsh_name])) {
+                if (in_array('U', $citem['crud'])) {
+                  $query[] = ' `'.$cnf['db']['prefix'].$citem['name'].'` = ? ';
+                  $binds[] = !empty(
+                    $this->api['payload']['body']['data'][$hsh_name]
+                  ) ? $this->api['payload']['body']['data'][$hsh_name] : '';
+                }
+                if ($citem['title']) {
+                  $record[] = $this->api['payload']['body']['data'][$hsh_name];
+                }
+              }
+            }
+            if (!empty($query) && !empty($binds)) {
+              $binds[] = $this->api['payload']['body']['args']['uuid'];
+              $update_record = $init_record->Execute('
+                UPDATE `'.$env['db_prfx'].$cnf['db']['table'].'` SET '.
+                (!empty($query) ? implode(', ', $query) : '') .
+                ' WHERE `'.$cnf['db']['prefix'].$cnf['db']['uuidkey'].'` = ? '
+              , $binds)
+              ->Run();
+              if ($update_record) {
+                return [
+                  'record' => $record,
+                  'title'  => $cnf['title'],
+                  'status' => 'success'
+                ];
+              }else{
+                return [
+                  'record' => $record,
+                  'title'  => $cnf['title'],
+                  'status' => 'nochange'
+                ];
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+
+  }
+
+  public function Delete() {
+    return $this->api['payload']['body'];
   }
 
 }

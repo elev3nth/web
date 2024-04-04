@@ -81,28 +81,29 @@
       </span>
     {% endif %}
   {% endif %}
-  {% if args.page != list and args.page != edit and args.page != delete %}
+  {% if args.page != list and args.page != edit and args.page != delete and
+  args.page != create %}
   <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~list }}"
   class="w-[7em] text-center font-bold
     block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
     text-slate-400 bg-slate-100 hover:bg-slate-200 hover:text-slate-500
-  " title="{{ buttons.back }}">
+  " title="{{ buttons.back|title }}">
     <i class="fa-solid fa-angles-left"></i> {{ buttons.back|upper }}
   </a>
   {% endif %}
-  {% if args.page == edit or args.page == new %}
+  {% if args.page == edit or args.page == create %}
   <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~list }}"
   class="w-[7em] text-center font-bold
     block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
     text-slate-400 bg-red-100 hover:bg-red-200 hover:text-slate-700
-  " title="{{ buttons.cancel }}">
+  " title="{{ buttons.cancel|title }}">
     <i class="fa-solid fa-xmark"></i> {{ buttons.cancel|upper }}
   </a>
   <button type="submit" id="saveRecord" name="saveRecord"
   class="w-[7em] text-center font-bold
     block float-right mx-[0.3em] p-1 px-2 mt-[-0.3em] border rounded-md
     text-slate-400 bg-green-200 hover:bg-green-400 hover:text-slate-700
-  " title="{{ buttons.save }}">
+  " title="{{ buttons.save|title }}">
     <i class="fa-solid fa-floppy-disk"></i> {{ buttons.save|upper }}
   </button>
   {% endif %}

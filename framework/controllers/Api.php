@@ -195,13 +195,11 @@ abstract class Methods {
       Response $response,
       Array $arguments
     ) use ($_api) {
-
       return $response
       ->withJson([
         'error'   => true,
         'message' => 'Invalid Access',
       ])->withStatus(401);
-
     });
 
     $_api['slim']->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], '/{routes:.+}',
