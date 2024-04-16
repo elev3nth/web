@@ -4,8 +4,14 @@
   ">
     {% include '/partials/breadcrumbs.tpl' %}
     {% if crud_response is defined %}
+      {% set errfields = [] %}
       {% if crud_response.status == 'success' %}
         {% set colorscheme = 'bg-green-200 text-green-600' %}
+      {% elseif crud_response.status == 'validate' %}
+        {% set colorscheme = 'bg-red-200 text-red-600' %}
+        {% for vkey, vitem in crud_response.errors %}
+          {% set errfields = errfields|merge([vitem.field]) %}
+        {% endfor %}
       {% else %}
         {% set colorscheme = 'bg-slate-200 text-slate-600' %}
       {% endif %}
@@ -19,8 +25,19 @@
       <div class="lg:flex pt-2 border bg-gray-100">
         <div class="
           text-right align-middle py-[0.4em] my-1
-          lg:flex-none lg:w-[100px]
+          lg:flex-none lg:w-[100px] relative
         ">
+          {% if citem.auths.required or citem.auths.unique %}
+          <div class="position absolute top-[-0.4em] left-1 text-md
+          text-slate-400">
+            {% if citem.auths.required %}
+            *
+            {% endif %}
+            {% if citem.auths.unique %}
+            *
+            {% endif %}
+          </div>
+          {% endif %}
           {{ citem.name|title }}
         </div>
         <div class="text-left mx-3 my-1 lg:flex-1">

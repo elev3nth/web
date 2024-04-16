@@ -16,9 +16,19 @@
     {% endif %}
   {% endif %}
 {% else %}
+  {% set fvalue = '' %}
+  {% if crud_response.post[citem.varf] is defined %}
+    {% set fvalue = crud_response.post[citem.varf] %}
+  {% else %}
+    {% if args.page != create %}
+      {% set fvalue = content.data[citem.flds] %}
+    {% endif %}
+  {% endif %}
   <input type="text"
     id="{{ citem.varf }}"
     name="{{ citem.varf }}"
-    value="{{ args.page != create ? content.data[citem.flds] : false }}"
-    class="w-full h-[2em] p-2 border rounded-sm border-gray-400" />
+    value="{{ fvalue }}"
+    class="w-full h-[2em] p-2 border rounded-sm border-gray-400
+    {{ citem.varf in errfields ? 'bg-red-200 border-red-400' : '' }}"
+    {{ citem.auths.required ? 'required' : '' }} />
 {% endif %}

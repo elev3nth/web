@@ -71,6 +71,14 @@
         </span>
       {% endif %}
     {% endif %}
+  {% else %}
+    {% if args.page == edit or args.page == create  %}
+    <span class="font-bold text-[0.8em] text-slate-400">
+      {{ locale.backend.content.legend.title }} :
+      {{ locale.backend.content.legend.required }},
+      {{ locale.backend.content.legend.unique }}
+    </span>
+    {% endif %}
   {% endif %}
   {% if hidebc|default(false) != true and args.page == list %}
     {% if content.paging.total is defined %}

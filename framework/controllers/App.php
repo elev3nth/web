@@ -133,17 +133,28 @@ abstract class Base {
             'user' => $_SESSION['logged']
           ]
         ]);
-        if ($crud_exe['success']) {
+        if (isset($crud_exe['success'])) {
           $message = $_app['locale']['backend']['content']['crud']
           [$set_vars['args']['page']][$crud_exe['payload']['status']];
           $message = str_replace('[%RECORD%]',
           implode($crud_exe['payload']['record']), $message);
           $message = str_replace('[%APP%]',
           $crud_exe['payload']['title']['plural'], $message);
-          $_SESSION['crud_response'] = [
-           'message' => $message,
-           'status' => $crud_exe['payload']['status']
-          ];
+          if (isset($crud_exe['payload']['errors']) &&
+          !empty($crud_exe['payload']['errors'])) {
+            $_SESSION['crud_response'] = [
+             'message' => $message,
+             'errors'  => $crud_exe['payload']['errors'],
+             'status'  => $crud_exe['payload']['status'],
+             'post'    => $payload
+            ];
+          }else{
+            $_SESSION['crud_response'] = [
+             'message' => $message,
+             'status'  => $crud_exe['payload']['status'],
+             'post'    => $payload
+            ];
+          }
           return $response
           ->withRedirect($set_vars['host'].'/'.$set_vars['admin'].'/'.
           $set_vars['args']['params']);

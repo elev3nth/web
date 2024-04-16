@@ -29,12 +29,20 @@ class Categories {
         'type'  => 'text',
         'link'  => true,
         'title' => true,
+        'auths' => [
+          'required' => true,
+          'unique'   => true
+        ],
         'crud'  => [ 'C','R','U','D' ]
       ],
       [
-        'name' => 'slug',
-        'type' => 'text',
-        'crud' => [ 'C','R','U','D' ]
+        'name'  => 'slug',
+        'type'  => 'text',
+        'auths' => [
+          'required' => true,
+          'unique'   => true
+        ],
+        'crud'  => [ 'C','R','U','D' ]
       ],
       [
         'name' => 'parent',
@@ -45,6 +53,9 @@ class Categories {
       [
         'name' => 'description',
         'type' => 'textbox',
+        'auths' => [
+          'required' => true
+        ],
         'crud' => [ 'C','U','D' ]
       ]
     ]

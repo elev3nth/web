@@ -8,8 +8,19 @@
       <div class="lg:flex pt-2 border bg-white">
         <div class="
           text-right align-middle py-[0.4em] my-1
-          lg:flex-none lg:w-[100px]
+          lg:flex-none lg:w-[100px] relative
         ">
+          {% if citem.auths.required or citem.auths.unique %}
+          <div class="position absolute top-[-0.4em] left-1 text-md
+          text-slate-400">
+            {% if citem.auths.required %}
+            *
+            {% endif %}
+            {% if citem.auths.unique %}
+            *
+            {% endif %}
+          </div>
+          {% endif %}
           {{ citem.name|title }}
         </div>
         <div class="text-left mx-3 my-1 lg:flex-1">
