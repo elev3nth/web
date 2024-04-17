@@ -214,6 +214,7 @@ class Apps {
           'crd' => $cnf['db']['crud']
         ],
         'title'   => $cnf['title'],
+        'tabs'    => $cnf['tabs'],
         'columns' => $cnf['columns'],
         'paging'  => isset($count_apps) ? Functions::Pagination(
           $this->api['payload']['body']['args']['pagenum'],
@@ -227,10 +228,103 @@ class Apps {
   }
 
   public function Create() {
+
     $setup = self::LoadModel();
     $cnf   = $setup['cnf'];
     $env   = $setup['env'];
-    return $this->api['payload']['body'];
+    if (!empty($cnf)) {
+      $query  = [];
+      $holder = [];
+      $binds  = [];
+      $record = [];
+      $errors = [];
+      foreach($cnf['columns'] as $ckey => $citem) {
+        $hsh_name = md5($cnf['db']['prefix'].$citem['name']);
+        if (isset($this->api['payload']['body']['data'][$hsh_name])) {
+          if (in_array('C', $citem['crud'])) {
+            $query[] = ' `'.$cnf['db']['prefix'].$citem['name'].'`';
+            $holder[] = '?';
+            $binds[] = !empty(
+              $this->api['payload']['body']['data'][$hsh_name]
+            ) ? $this->api['payload']['body']['data'][$hsh_name] : '';
+          }
+          if ($citem['title']) {
+            $record[] = $this->api['payload']['body']['data'][$hsh_name];
+          }
+          if (isset($citem['auths'])) {
+            if ($citem['auths']['required']) {
+              $check_error = self::Validation([
+                'setup'    => $setup,
+                'required' => $citem['auths']['required'],
+                'field'    => $cnf['db']['prefix'].$citem['name'],
+                'hash'     => $hsh_name,
+                'value'    =>
+                $this->api['payload']['body']['data'][$hsh_name]
+              ]);
+              if (!empty($check_error)) {
+                array_push($errors, $check_error);
+              }
+            }
+            if ($citem['auths']['unique']) {
+              $check_error = self::Validation([
+                'setup'  => $setup,
+                'unique' => $citem['auths']['unique'],
+                'field'  => $cnf['db']['prefix'].$citem['name'],
+                'hash'   => $hsh_name,
+                'value'  =>
+                $this->api['payload']['body']['data'][$hsh_name]
+              ]);
+              if (!empty($check_error)) {
+                array_push($errors, $check_error);
+              }
+            }
+          }
+        }
+      }
+      if (empty($errors)) {
+        $query[] = '`'.$cnf['db']['prefix'].$cnf['db']['uuidkey'].'`';
+        $holder[] = '?';
+        $binds[] = $newuid = Helper::UuidGenerate();
+        $init_record  = new Pdo($this->api);
+        $create_record = $init_record->Execute('
+          INSERT INTO `'.$env['db_prfx'].$cnf['db']['table'].'` '.
+          ' (' . (!empty($query) ? implode(', ', $query) : '') . ') VALUES '.
+          ' ( ' . (!empty($holder) ? implode(', ', $holder) : '') . ' ) '
+        , $binds)
+        ->Run();
+        if ($create_record) {
+          $init_auditing = new Auditing($this->api);
+          $init_auditing->AppAudit([
+            'env'    => $env,
+            'key'    => Helper::UuidGenerate(),
+            'app'    => $newuid,
+            'user'   => $this->api['payload']['body']['user']['uidtkn'],
+            'time'   => time(),
+            'status' => 'create'
+          ]);
+          return [
+            'record' => $record,
+            'title'  => $cnf['title'],
+            'newuid' => $newuid,
+            'status' => 'created'
+          ];
+        }else{
+          return [
+            'record' => $record,
+            'title'  => $cnf['title'],
+            'status' => 'error'
+          ];
+        }
+      }else{
+        return [
+          'title'  => $cnf['title'],
+          'errors' => $errors,
+          'status' => 'validate'
+        ];
+      }
+    }
+    return false;
+
   }
 
   public function Edit() {
@@ -310,6 +404,15 @@ class Apps {
                 , $binds)
                 ->Run();
                 if ($update_record) {
+                  $init_auditing = new Auditing($this->api);
+                  $xxx = $init_auditing->AppAudit([
+                    'env'    => $env,
+                    'key'    => Helper::UuidGenerate(),
+                    'app'    => $this->api['payload']['body']['args']['uuid'],
+                    'user'   => $this->api['payload']['body']['user']['uidtkn'],
+                    'time'   => time(),
+                    'status' => 'edit'
+                  ]);
                   return [
                     'record' => $record,
                     'title'  => $cnf['title'],
@@ -344,38 +447,63 @@ class Apps {
   }
 
   private function Validation($params = []) {
-    $errors = [];
-    $iempty  = false;
-    if ($params['required']) {
-      if (empty($params['value'])) {
-        $iempty    = true;
-        $errors = [
-          'type'  => 'required',
-          'field' => $params['hash']
-        ];
+    if (!empty($params)) {
+      $errors = [];
+      $iempty  = false;
+      if ($params['required']) {
+        if (empty($params['value'])) {
+          $iempty    = true;
+          $errors = [
+            'type'  => 'required',
+            'field' => $params['hash']
+          ];
+        }
       }
-    }
-    if (!$empty && $params['unique']) {
-      $init_record  = new Pdo($this->api);
-      $check_record = $init_record->Execute('
-       SELECT * FROM
-       `'.$params['setup']['env']['db_prfx'].
-       $params['setup']['cnf']['db']['table'].'`'.
-       ' WHERE '.
-       '`'.$params['field'].'` =  ? AND '.
-       '`'.$params['setup']['cnf']['db']['prefix'].
-       $params['setup']['cnf']['db']['uuidkey'].'` != ? '.
-       ' LIMIT 0, 1 '
-       , [ $params['value'], $params['key'] ])
-      ->Run();
-      if ($check_record) {
-        $errors = [
-          'type' => 'unique',
-          'field' => $params['hash']
-        ];
+      if (!$empty && $params['unique']) {
+        $init_record  = new Pdo($this->api);
+        if (!isset($this->api['payload']['body']['args']['uuid'])) {
+          $check_record = $init_record->Execute('
+           SELECT * FROM
+           `'.$params['setup']['env']['db_prfx'].
+           $params['setup']['cnf']['db']['table'].'`'.
+           ' WHERE '.
+           '`'.$params['field'].'` =  ? '.
+           ' LIMIT 0, 1 '
+           , [ $params['value'] ])
+          ->Run();
+          if ($check_record) {
+            $errors = [
+              'type' => 'unique',
+              'field' => $params['hash']
+            ];
+          }
+        }else{
+          if (Helper::UuidValidate(
+            $this->api['payload']['body']['args']['uuid']
+          )) {
+            $check_record = $init_record->Execute('
+             SELECT * FROM
+             `'.$params['setup']['env']['db_prfx'].
+             $params['setup']['cnf']['db']['table'].'`'.
+             ' WHERE '.
+             '`'.$params['field'].'` =  ? AND '.
+             '`'.$params['setup']['cnf']['db']['prefix'].
+             $params['setup']['cnf']['db']['uuidkey'].'` != ? '.
+             ' LIMIT 0, 1 '
+             , [ $params['value'], $params['key'] ])
+            ->Run();
+            if ($check_record) {
+              $errors = [
+                'type' => 'unique',
+                'field' => $params['hash']
+              ];
+            }
+          }
+        }
       }
+      return $errors;
     }
-    return $errors;
+    return false;
   }
 
 }

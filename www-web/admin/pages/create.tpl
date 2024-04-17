@@ -3,6 +3,23 @@
     {{ host~'/'~admin~'/'~links|join('/')~'/'~create }}
   ">
     {% include '/partials/breadcrumbs.tpl' %}
+    {% if crud_response is defined %}
+      {% set errfields = [] %}
+      {% if crud_response.status == 'success' %}
+        {% set colorscheme = 'bg-green-200 text-green-600' %}
+      {% elseif crud_response.status == 'validate' %}
+        {% set colorscheme = 'bg-red-200 text-red-600' %}
+        {% for vkey, vitem in crud_response.errors %}
+          {% set errfields = errfields|merge([vitem.field]) %}
+        {% endfor %}
+      {% else %}
+        {% set colorscheme = 'bg-slate-200 text-slate-600' %}
+      {% endif %}
+      <div class="w-full text-center py-2 lg:py-4 text-[1em] lg:text-[1.5em]
+      font-bold {{ colorscheme }}">
+        {{ crud_response.message }}
+      </div>
+    {% endif %}
     <hr />
     {% for ckey, citem in content.columns %}
       <div class="lg:flex pt-2 border bg-white">

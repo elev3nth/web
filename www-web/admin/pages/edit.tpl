@@ -5,7 +5,8 @@
     {% include '/partials/breadcrumbs.tpl' %}
     {% if crud_response is defined %}
       {% set errfields = [] %}
-      {% if crud_response.status == 'success' %}
+      {% if crud_response.status == 'success' or
+      crud_response.status == 'created' %}
         {% set colorscheme = 'bg-green-200 text-green-600' %}
       {% elseif crud_response.status == 'validate' %}
         {% set colorscheme = 'bg-red-200 text-red-600' %}
@@ -20,7 +21,7 @@
         {{ crud_response.message }}
       </div>
     {% endif %}
-    <hr />
+    {% include '/partials/tabs.tpl' %}
     {% for ckey, citem in content.columns %}
       <div class="lg:flex pt-2 border bg-gray-100">
         <div class="

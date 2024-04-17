@@ -132,14 +132,18 @@ abstract class Base {
             'data' => $payload,
             'user' => $_SESSION['logged']
           ]
-        ]);
+        ]);        
         if (isset($crud_exe['success'])) {
           $message = $_app['locale']['backend']['content']['crud']
           [$set_vars['args']['page']][$crud_exe['payload']['status']];
-          $message = str_replace('[%RECORD%]',
-          implode($crud_exe['payload']['record']), $message);
-          $message = str_replace('[%APP%]',
-          $crud_exe['payload']['title']['plural'], $message);
+          if (isset($crud_exe['payload']['record'])) {
+            $message = str_replace('[%RECORD%]',
+            implode($crud_exe['payload']['record']), $message);
+          }
+          if (isset($crud_exe['payload']['title'])) {
+            $message = str_replace('[%APP%]',
+            $crud_exe['payload']['title']['plural'], $message);
+          }
           if (isset($crud_exe['payload']['errors']) &&
           !empty($crud_exe['payload']['errors'])) {
             $_SESSION['crud_response'] = [
@@ -155,9 +159,20 @@ abstract class Base {
              'post'    => $payload
             ];
           }
-          return $response
-          ->withRedirect($set_vars['host'].'/'.$set_vars['admin'].'/'.
-          $set_vars['args']['params']);
+          if (isset($crud_exe['payload']['newuid'])) {
+            $set_vars['args']['params'] = str_replace(
+              $_app['env']['pages']['create'],
+              $_app['env']['pages']['edit'],
+              $set_vars['args']['params']
+            );
+            return $response
+            ->withRedirect($set_vars['host'].'/'.$set_vars['admin'].'/'.
+            $set_vars['args']['params'].'/'.$crud_exe['payload']['newuid']);
+          }else{
+            return $response
+            ->withRedirect($set_vars['host'].'/'.$set_vars['admin'].'/'.
+            $set_vars['args']['params']);
+          }
         }
         return $response
         ->withRedirect($set_vars['host'].'/'.$set_vars['admin']);
