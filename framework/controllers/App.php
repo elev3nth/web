@@ -132,7 +132,7 @@ abstract class Base {
             'data' => $payload,
             'user' => $_SESSION['logged']
           ]
-        ]);        
+        ]);
         if (isset($crud_exe['success'])) {
           $message = $_app['locale']['backend']['content']['crud']
           [$set_vars['args']['page']][$crud_exe['payload']['status']];

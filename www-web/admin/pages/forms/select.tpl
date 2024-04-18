@@ -9,15 +9,22 @@
       args.page == list or
       args.page == view
 %}
-  {% for optskey, opts in optval %}
-    {% if opts[optcfg.db.prefix~optcfg.db.uuidkey] == optvalue %}
-      {% for optk, optc in optcfg.columns %}
-        {% if (optc.title|default(false) == true) %}
-          {{ opts[optcfg.db.prefix~optc.name] }}
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-  {% endfor %}
+    {% for optskey, opts in optval %}
+      {% if opts[optcfg.db.prefix~optcfg.db.uuidkey] == optvalue %}
+        {% for optk, optc in optcfg.columns %}
+          {% if (optc.title|default(false) == true) %}
+            {% if citem.link|default(false) == true and args.page != view %}
+              <a href="{{ host~'/'~admin~'/'~links|join('/')~'/'~view~'/'~
+              ditem[content.table.pfx~content.table.key] }}" class="underline">
+                {{ opts[optcfg.db.prefix~optc.name] }}
+              </a>
+            {% else %}
+              {{ opts[optcfg.db.prefix~optc.name] }}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
 {% else %}
   <select
     id="{{ citem.varf }}"

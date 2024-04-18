@@ -9,7 +9,7 @@ class Pages {
   private $api;
   private $cnf = [
     'table' => 'pages',
-    'cprfx' => 'page_',
+    'prefix' => 'page_',
     'title' => [
       'singular' => 'Page',
       'plural'   => 'Pages'

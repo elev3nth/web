@@ -12,11 +12,47 @@ class Users {
 
   private $api;
   private $cnf = [
-    'table' => 'users',
-    'cprfx' => 'user_',
-    'title' => [
+    'db' => [
+      'table'   => 'users',
+      'prefix'  => 'user_',
+      'uuidkey' => 'key',
+      'enabled' => true,
+      'sorted'  => true,
+      'crud'    => [ 'C','R','U','D' ]
+    ],
+    'title'  => [
       'singular' => 'User',
       'plural'   => 'Users'
+    ],
+    'columns' => [
+      [
+        'name'  => 'lastname',
+        'type'  => 'text',
+        'link'  => true,
+        'title' => true,
+        'auths' => [
+          'required' => true,
+          'unique'   => true
+        ],
+        'crud'  => [ 'C','R','U','D' ]
+      ],
+      [
+        'name'  => 'firstname',
+        'type'  => 'text',
+        'auths' => [
+          'required' => true,
+          'unique'   => true
+        ],
+        'crud'  => [ 'C','R','U','D' ]
+      ],
+      [
+        'name'  => 'email',
+        'type'  => 'text',
+        'auths' => [
+          'required' => true,
+        ],
+        'crud'  => [ 'C', 'R', 'U','D' ]
+      ]
     ]
   ];
 
@@ -35,9 +71,9 @@ class Users {
     $verify_user = new Pdo($this->api);
     $verified_user = $verify_user->Execute('
      SELECT * FROM
-     `'.$this->api['env']['db_prfx'].$this->cnf['table'].'`
-     WHERE `'.$this->cnf['cprfx'].'email` = ? AND
-     `'.$this->cnf['cprfx'].'enabled` = ? LIMIT 1
+     `'.$this->api['env']['db_prfx'].$this->cnf['db']['table'].'`
+     WHERE `'.$this->cnf['db']['prefix'].'email` = ? AND
+     `'.$this->cnf['db']['prefix'].'enabled` = ? LIMIT 1
     ', [
       $this->api['payload']['body']['user'],
       1
@@ -47,9 +83,9 @@ class Users {
       $verify_user = new Pdo($this->api['client']);
       $verified_user = $verify_user->Execute('
        SELECT * FROM
-       `'.$this->api['client']['env']['db_prfx'].$this->cnf['table'].'`
-       WHERE `'.$this->cnf['cprfx'].'email` = ? AND
-       `'.$this->cnf['cprfx'].'enabled` = ? LIMIT 1
+       `'.$this->api['client']['env']['db_prfx'].$this->cnf['db']['table'].'`
+       WHERE `'.$this->cnf['db']['prefix'].'email` = ? AND
+       `'.$this->cnf['db']['prefix'].'enabled` = ? LIMIT 1
       ', [
         $this->api['payload']['body']['user'],
         1

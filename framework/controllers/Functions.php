@@ -106,8 +106,8 @@ class Functions {
         'total' => $totalcount,
         'min'   => $min_paging > 1 ? $min_paging : 1,
         'max'   => $max_paging > 1 ? $max_paging : 1,
-        'prev'  => $previous_page,
-        'next'  => $next_page,
+        'prev'  => isset($previous_page) ? $previous_page : false,
+        'next'  => isset($next_page) ? $next_page : false,
         'pages' => $paging_setup ? $paging_setup : 1
       ];
     }else{

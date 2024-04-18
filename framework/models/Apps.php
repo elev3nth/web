@@ -151,12 +151,22 @@ class Apps {
           $binds[] = $this->api['payload']['body']['args']['uuid'];
         }
       }
-      if ($cnf['db']['enabled']) {
+      if (isset($cnf['db']['enabled']) && $cnf['db']['enabled']) {
         $query[] = ' `'.$cnf['db']['prefix'].'enabled'.'` = ? ';
         $binds[] = 1;
       }
-      if ($cnf['db']['sorted']) {
-        $sortable = ' ORDER BY `'.$cnf['db']['prefix'].'sort` ASC ';
+      if (isset($cnf['db']['sorted']) && $cnf['db']['sorted']) {
+        if (isset($cnf['db']['sortby'])) {
+          $sortable = ' ORDER BY `'.$cnf['db']['prefix'].
+          $cnf['db']['sortby']['field'].'` '.$cnf['db']['sortby']['type'].' ';
+        }else{
+          $sortable = ' ORDER BY `'.$cnf['db']['prefix'].'sort` ASC ';
+        }
+      }else{
+        if (isset($cnf['db']['sortby'])) {
+          $sortable = ' ORDER BY `'.$cnf['db']['prefix'].
+          $cnf['db']['sortby']['field'].'` '.$cnf['db']['sortby']['type'].' ';
+        }
       }
 
       $init_apps = new Pdo($this->api);
@@ -174,14 +184,15 @@ class Apps {
          SELECT COUNT(*) as total FROM
          `'.$env['db_prfx'].$cnf['db']['table'].'`
          ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
-         ' ' . $sortable
+         ' ' . (isset($sortable) ? $sortable : false)
          , $binds)
         ->Run();
         $load_apps = $init_apps->Execute('
          SELECT * FROM
          `'.$env['db_prfx'].$cnf['db']['table'].'`
          ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
-         ' ' . $sortable . $limit
+         ' ' . (isset($sortable) ? $sortable : false) .
+         (isset($limit) ? $limit : false)
          , $binds)
         ->Run();
       }else{
@@ -189,7 +200,7 @@ class Apps {
          SELECT * FROM
          `'.$env['db_prfx'].$cnf['db']['table'].'`
          ' . (!empty($query) ? ' WHERE ' . implode(' AND ', $query) : '') .
-         ' ' . $sortable . ' LIMIT 0, 1'
+         ' ' . (isset($sortable) ? $sortable : false) . ' LIMIT 0, 1'
          , $binds)
         ->Run();
       }
@@ -209,12 +220,14 @@ class Apps {
           'pfx' => $cnf['db']['prefix'],
           'key' => $cnf['db']['uuidkey'],
           'hsh' => md5($cnf['db']['prefix'].$cnf['db']['uuidkey']),
-          'enb' => $cnf['db']['enabled'] ? true : false,
-          'srt' => $cnf['db']['sorted'] ? true : false,
+          'enb' =>
+          isset($cnf['db']['enabled']) && $cnf['db']['enabled'] ? true : false,
+          'srt' =>
+          isset($cnf['db']['sorted']) && $cnf['db']['sorted'] ? true : false,
           'crd' => $cnf['db']['crud']
         ],
         'title'   => $cnf['title'],
-        'tabs'    => $cnf['tabs'],
+        'tabs'    => isset($cnf['tabs']) ? $cnf['tabs'] : false,
         'columns' => $cnf['columns'],
         'paging'  => isset($count_apps) ? Functions::Pagination(
           $this->api['payload']['body']['args']['pagenum'],
@@ -297,10 +310,12 @@ class Apps {
           $init_auditing->AppAudit([
             'env'    => $env,
             'key'    => Helper::UuidGenerate(),
-            'app'    => $newuid,
-            'user'   => $this->api['payload']['body']['user']['uidtkn'],
-            'time'   => time(),
-            'status' => 'create'
+            'rec'    => implode(' ', $record),
+            'app'    => $cnf['title']['plural'],
+            'user'   => $this->api['payload']['body']['user']['fname'].
+            ' '.$this->api['payload']['body']['user']['lname'],
+            'time'   => date('d/m/Y - h:i a', time()),
+            'status' => 'Created'
           ]);
           return [
             'record' => $record,
@@ -405,13 +420,15 @@ class Apps {
                 ->Run();
                 if ($update_record) {
                   $init_auditing = new Auditing($this->api);
-                  $xxx = $init_auditing->AppAudit([
+                  $init_auditing->AppAudit([
                     'env'    => $env,
                     'key'    => Helper::UuidGenerate(),
-                    'app'    => $this->api['payload']['body']['args']['uuid'],
-                    'user'   => $this->api['payload']['body']['user']['uidtkn'],
-                    'time'   => time(),
-                    'status' => 'edit'
+                    'rec'    => implode(' ', $record),
+                    'app'    => $cnf['title']['plural'],
+                    'user'   => $this->api['payload']['body']['user']['fname'].
+                    ' '.$this->api['payload']['body']['user']['lname'],
+                    'time'   => date('d/m/Y - h:i a', time()),
+                    'status' => 'Updated'
                   ]);
                   return [
                     'record' => $record,

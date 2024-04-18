@@ -5,10 +5,17 @@
     list-header-wrapper bg-white sticky top-0
     lg:flex
   ">
-    <div class="
-      flex-1 list-header font-bold
-      text-center p-3 grow-0 basis-[5%]
-    "></div>
+    {% if 'U' not in content.table.crd and 'D' not in content.table.crd %}
+      <div class="
+        flex-1 list-header font-bold
+        text-center p-3 grow-0 basis-[1%]
+      "></div>
+    {% else %}
+      <div class="
+        flex-1 list-header font-bold
+        text-center p-3 grow-0 basis-[5%]
+      "></div>
+    {% endif %}
     {% for ckey, citem in content.columns %}
       {% if citem.type != 'key' and citem.type != 'uuid' %}
         {% if 'R' in citem.crud %}
@@ -23,34 +30,50 @@
     {% endfor %}
   </div>
   {% if content.data is not empty %}
-    {% for dkey, ditem in content.data %}
+    {% set xrows = [] %}
+    {% if content.data[0] is not defined %}
+      {% set xrows = xrows|merge([content.data]) %}
+    {% else %}
+      {% set xrows = content.data %}
+    {% endif %}
+    {% for dkey, ditem in xrows %}
     <div class="records flex even:bg-slate-50 odd:bg-slate-100">
-      <div class="flex-1 p-1 grow-0 basis-[5%] text-center">
-        <a href="
-          {{ host~'/'~admin~'/'~links|join('/')~'/'~edit~'/'~
-          ditem[content.table.pfx~content.table.key] }}
-        ">
-          <i class="
-            fa-solid fa-file-pen m-[0.3em] text-green-400
-          "></i>
-        </a>
-        <a href="
-          {{ host~'/'~admin~'/'~links|join('/')~'/'~delete~'/'~
-          ditem[content.table.pfx~content.table.key] }}
-        ">
-          <i class="
-          fa-solid fa-trash-can m-[0.3em] text-red-400
-          "></i>
-        </a>
-        <input type="hidden"
-          key="{{ content.table.hsh }}"
-          name="{{ content.table.hsh }}"
-          value="{{ ditem[content.table.pfx~content.table.key] }}"
-        />
-      </div>
+      <input type="hidden"
+        key="{{ content.table.hsh }}"
+        name="{{ content.table.hsh }}"
+        value="{{ ditem[content.table.pfx~content.table.key] }}"
+      />
+      {% if 'U' not in content.table.crd and 'D' not in content.table.crd %}
+        <div class="flex-1 p-1 grow-0 basis-[1%] text-center">
+        </div>
+      {% else %}
+        <div class="flex-1 p-1 grow-0 basis-[5%] text-center">
+          {% if 'U' in content.table.crd %}
+          <a href="
+            {{ host~'/'~admin~'/'~links|join('/')~'/'~edit~'/'~
+            ditem[content.table.pfx~content.table.key] }}
+          ">
+            <i class="
+              fa-solid fa-file-pen m-[0.3em] text-green-400
+            "></i>
+          </a>
+          {% endif %}
+          {% if 'D' in content.table.crd %}
+          <a href="
+            {{ host~'/'~admin~'/'~links|join('/')~'/'~delete~'/'~
+            ditem[content.table.pfx~content.table.key] }}
+          ">
+            <i class="
+            fa-solid fa-trash-can m-[0.3em] text-red-400
+            "></i>
+          </a>
+          {% endif %}
+        </div>
+      {% endif %}
       {% for ckey, citem in content.columns %}
         {% if ditem[citem.flds] is defined and 'R' in citem.crud %}
-          <div class="column flex-1 p-1">
+          <div class="column flex-1 p-1
+          {{ citem.align == 'center' ? 'text-center' : '' }}">
             {% include [
               '/forms/'~citem.type~'.tpl',
               '/forms/text.tpl'

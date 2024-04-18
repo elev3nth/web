@@ -8,9 +8,9 @@ class Clients {
 
   private $api;
   private $cnf = [
-    'table' => 'clients',
-    'cprfx' => 'client_',
-    'title' => [
+    'table'  => 'clients',
+    'prefix' => 'client_',
+    'title'  => [
       'singular' => 'Client',
       'plural'   => 'Clients'
     ]

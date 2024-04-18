@@ -14,9 +14,13 @@ class Auditing {
   private $cnf = [
     'db' => [
       'table'   => 'auditing',
-      'cprfx'   => 'audit_',
+      'prefix'  => 'audit_',
       'uuidkey' => 'key',
-      'crud'    => [ 'R' ]
+      'crud'    => [ 'R' ],
+      'sortby'  => [
+        'type'  => 'DESC',
+        'field' => 'timestamp'
+      ],
     ],
     'title' => [
       'singular' => 'Audit',
@@ -24,24 +28,33 @@ class Auditing {
     ],
     'columns' => [
       [
-        'name'  => 'app',
-        'type'  => 'select',
+        'name'  => 'record',
+        'type'  => 'text',
         'link'  => true,
-        'title' => true ,
-        'class' => '\\Web\\Models\\Apps'
+        'title' => true,
+        'crud'  => [ 'R' ]
+      ],
+      [
+        'name'  => 'app',
+        'type'  => 'text',
+        'crud'  => [ 'R' ]
       ],
       [
         'name'  => 'user',
-        'type'  => 'select',
-        'class' => '\\Web\\Models\\Users'
+        'type'  => 'text',
+        'crud'  => [ 'R' ]
       ],
       [
         'name'  => 'timestamp',
-        'type'  => 'text'
+        'type'  => 'text',
+        'align' => 'center',
+        'crud'  => [ 'R' ]
       ],
       [
         'name'  => 'status',
-        'type'  => 'text'
+        'type'  => 'text',
+        'align' => 'center',
+        'crud'  => [ 'R' ]
       ],
     ],
   ];
@@ -58,9 +71,10 @@ class Auditing {
       $binds = [];
 
       foreach($this->cnf['columns'] as $colkey => $colitem) {
-        $query[] = '`'.$this->cnf['db']['cprfx'].$colitem['name'].'`';
+        $query[] = '`'.$this->cnf['db']['prefix'].$colitem['name'].'`';
       }
-      $query[] = '`'.$this->cnf['db']['cprfx'].$this->cnf['db']['uuidkey'].'`';
+      $query[] = '`'.$this->cnf['db']['prefix'].$this->cnf['db']['uuidkey'].'`';
+      $binds[] = $params['rec'];
       $binds[] = $params['app'];
       $binds[] = $params['user'];
       $binds[] = $params['time'];
@@ -72,7 +86,7 @@ class Auditing {
         INSERT INTO `'.
         $params['env']['db_prfx'].$this->cnf['db']['table'].'` '.
         ' (' . (!empty($query) ? implode(', ', $query) : '') . ') VALUES '.
-        ' (?,?,?,?,?) '
+        ' (?,?,?,?,?,?) '
       , $binds)
       ->Run();
       if ($create_audit) {

@@ -17,7 +17,8 @@ class Categories {
       'prefix'  => 'ctg_',
       'uuidkey' => 'key',
       'enabled' => true,
-      'sorted'  => true
+      'sorted'  => true,
+      'crud'    => [ 'C','R','U','D' ]
     ],
     'title' => [
       'singular' => 'Category',
