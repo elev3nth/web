@@ -314,7 +314,7 @@ class Apps {
             'app'    => $cnf['title']['plural'],
             'user'   => $this->api['payload']['body']['user']['fname'].
             ' '.$this->api['payload']['body']['user']['lname'],
-            'time'   => date('d/m/Y - h:i a', time()),
+            'time'   => date('d/m/Y - h:i:s a', time()),
             'status' => 'Created'
           ]);
           return [
@@ -427,7 +427,7 @@ class Apps {
                     'app'    => $cnf['title']['plural'],
                     'user'   => $this->api['payload']['body']['user']['fname'].
                     ' '.$this->api['payload']['body']['user']['lname'],
-                    'time'   => date('d/m/Y - h:i a', time()),
+                    'time'   => date('d/m/Y - h:i:s a', time()),
                     'status' => 'Updated'
                   ]);
                   return [

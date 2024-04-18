@@ -25,7 +25,6 @@ abstract class Base {
     $_app                = [];
     $_app['env']         = parse_ini_file(realpath('.env'), true);
 
-
     if ($_app['env']['dev']) {
       error_reporting(E_ALL);
     }else{

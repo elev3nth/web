@@ -19,8 +19,8 @@ class Auditing {
       'crud'    => [ 'R' ],
       'sortby'  => [
         'type'  => 'DESC',
-        'field' => 'timestamp'
-      ],
+        'field' => 'date'
+      ]
     ],
     'title' => [
       'singular' => 'Audit',
@@ -45,7 +45,7 @@ class Auditing {
         'crud'  => [ 'R' ]
       ],
       [
-        'name'  => 'timestamp',
+        'name'  => 'date',
         'type'  => 'text',
         'align' => 'center',
         'crud'  => [ 'R' ]
