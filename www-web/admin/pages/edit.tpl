@@ -23,7 +23,9 @@
     {% endif %}
     {% include '/partials/tabs.tpl' %}
     {% for ckey, citem in content.columns %}
-      <div class="lg:flex pt-2 border bg-gray-100">
+      <div class="row-item pt-2 border bg-gray-100
+      tab-{{ citem.tab is defined ? citem.tab :
+      content.title.singular|lower }} hidden">
         <div class="
           text-right align-middle py-[0.4em] my-1
           lg:flex-none lg:w-[100px] relative
@@ -49,6 +51,20 @@
         </div>
       </div>
     {% endfor %}
+    {% if content.table.srt|default(false) == true %}
+    <div class="row-item pt-2 border bg-gray-100
+    tab-{{ locale.backend.tabs.sorting|lower }} hidden">
+      <div class="text-left mx-3 my-1 lg:flex-1">
+      Sorting
+      </div>
+    </div>
+    {% endif %}
+    <div class="row-item pt-2 border bg-gray-100
+    tab-{{ locale.backend.tabs.auditing|lower }} hidden">
+      <div class="text-left mx-3 my-1 lg:flex-1">
+        Auditing
+      </div>
+    </div>
     <hr />
     {% set hidebc = true %}
     {% include '/partials/breadcrumbs.tpl' %}
